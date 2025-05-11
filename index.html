@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TECHNOVATION 2025</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="header">
+        <div class="logo" style=" font-family: 'Oswald', sans-serif; font-weight: bold; font-size: 2em;">MUSI-DEO</div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <a href="http://127.0.0.1:5500/HTML/home.html" class="nav-item" data-emoji="🏠" style="background-color: aqua;"><span> Home</span></a>
+
+            <a href="http://127.0.0.1:5500/HTML/music.html" class="nav-item" id="events-link" data-emoji="🎵"style="background-color: aqua;"><span> music</span></a>
+
+       
+        </div>
+
+        <div class="content" id="content">
+            <video autoplay muted loop id="background-video">
+                <source src="musicbackground.mp4" type="video/mp4">
+            </video>
+            <div class="overlay">
+                <h1>WELCOME TO</h1>
+                <h1 style="text-transform: uppercase;text-align: center; text-shadow: 2px 2px 4px #000000;color: chocolate;">MUSI-DEO</h1>
+                <p>listen your music enjoy your video</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-views"></div>
+
+    <script>
+      const menuToggle = document.getElementById('menu-toggle');
+const sidebar = document.getElementById('sidebar');
+const content = document.getElementById('content');
+const eventsLink = document.getElementById('events-link');
+const subNav = document.getElementById('sub-nav');
+
+menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('hidden');
+    content.classList.toggle('expanded');
+});
+
+eventsLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    subNav.style.display = subNav.style.display === 'block' ? 'none' : 'block';
+});
+
+const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        navItems.forEach(navItem => navItem.classList.remove('active'));
+        item.classList.add('active');
+    });
+});
+
+// Page View Counter
+let pageViews = localStorage.getItem('pageViews');
+pageViews = pageViews ? parseInt(pageViews) : 0;
+pageViews++;
+localStorage.setItem('pageViews', pageViews);
+
+const pageViewsDisplay = document.getElementById('page-views');
+if (pageViewsDisplay) {
+    pageViewsDisplay.textContent = `Live Visitors: ${pageViews}`;
+}
+
+    </script>
+</body>
+</html>

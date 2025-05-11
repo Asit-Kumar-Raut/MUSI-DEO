@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Playlist</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="singer.css">
+</head>
+<body>
+    <div class="playlist-container">
+        <div class="d-flex align-items-center mb-3">
+            <img src="arijit.jpg" alt="Artist" class="me-3" id="artistImage" >
+            <div id="artistNamecontainer">
+                <h4>Arijit Singh</h4>
+                <p><span id="song-count">0</span> Songs, Total Duration <span id="total-duration">0:00</span></p>
+            </div>
+        </div>
+        <div class="search-container">
+            <input type="text" class="search-box" id="search" placeholder="Search songs...">
+            <button class="btn btn-light" id="searchBtn">🔍</button>
+            <button class="btn btn-primary" id="playAll">▶ Play All</button>
+        </div>
+        <div id="song-list"></div>
+    </div>
+
+    <div class="player-controls">
+        <button class="btn btn-secondary" id="prev">⏮</button>
+        <button class="btn btn-success" id="playPause">▶</button>
+        <button class="btn btn-secondary" id="next">⏭</button>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+    </div>
+    <script>
+        const songs = [
+{ title: "agar tum sath ho", duration: "3:50", src: "agar1.mp3", poster: "agar.jpg" }
+
+];
+
+let currentSongIndex = 0;
+let audioPlayer = new Audio();
+const songList = document.getElementById("song-list");
+const songCount = document.getElementById("song-count");
+const totalDuration = document.getElementById("total-duration");
+const playPauseBtn = document.getElementById("playPause");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+const progressBar = document.querySelector(".progress");
+const progressContainer = document.querySelector(".progress-bar");
+
+songCount.innerText = songs.length;
+let totalMinutes = songs.reduce((acc, song) => acc + parseInt(song.duration.split(":")[0]), 0);
+totalDuration.innerText = `${totalMinutes}:00`;
+
+function updateSongList(filter = "") {
+songList.innerHTML = "";
+songs.forEach((song, index) => {
+  if (song.title.toLowerCase().includes(filter.toLowerCase())) {
+      let div = document.createElement("div");
+      div.className = "song-item";
+      div.innerHTML = `
+          <span>${index + 1}.</span>  <!-- Serial Number -->
+          <img src="${song.poster}" alt="Poster" style="width: 50px; height: 50px; border-radius: 5px; margin-right: 5px;">
+          <span>${song.title}</span>
+          <span>${song.duration}</span>
+      `;
+      div.onclick = () => playSong(index);
+      songList.appendChild(div);
+  }
+});
+}
+
+function playSong(index) {
+currentSongIndex = index;
+audioPlayer.src = songs[index].src;
+audioPlayer.play();
+playPauseBtn.innerText = "⏸";
+highlightPlayingSong();
+}
+
+playPauseBtn.addEventListener("click", () => {
+if (audioPlayer.paused) {
+  audioPlayer.play();
+  playPauseBtn.innerText = "⏸";
+} else {
+  audioPlayer.pause();
+  playPauseBtn.innerText = "▶";
+}
+});
+
+nextBtn.addEventListener("click", () => {
+currentSongIndex = (currentSongIndex + 1) % songs.length;
+playSong(currentSongIndex);
+});
+
+prevBtn.addEventListener("click", () => {
+currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+playSong(currentSongIndex);
+});
+
+document.getElementById("playAll").addEventListener("click", () => {
+currentSongIndex = 0;
+playSong(currentSongIndex);
+audioPlayer.onended = () => {
+  currentSongIndex = (currentSongIndex + 1) % songs.length;
+  playSong(currentSongIndex);
+};
+});
+
+document.getElementById("searchBtn").addEventListener("click", () => {
+updateSongList(document.getElementById("search").value);
+});
+
+audioPlayer.addEventListener("ended", () => {
+currentSongIndex = (currentSongIndex + 1) % songs.length;
+playSong(currentSongIndex);
+});
+
+function highlightPlayingSong() {
+document.querySelectorAll(".song-item").forEach((item, index) => {
+  item.classList.toggle("active", index === currentSongIndex);
+});
+}
+
+audioPlayer.addEventListener("timeupdate", () => {
+let progressPercent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+progressBar.style.width = `${progressPercent}%`; 
+
+});
+
+progressContainer.addEventListener("click", (event) => {
+let offsetX = event.offsetX;
+let totalWidth = progressContainer.clientWidth;
+let seekTime = (offsetX / totalWidth) * audioPlayer.duration;
+audioPlayer.currentTime = seekTime;
+});
+
+updateSongList();
+
+    </script>
+</body>
+</html>
