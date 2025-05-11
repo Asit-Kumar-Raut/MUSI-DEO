@@ -1,0 +1,100 @@
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+        }
+        .playlist-container {
+            max-width: 90vw;
+            height: 75vh;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .song-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .song-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 0.5;
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .search-box {
+            flex: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+        .player-controls {
+            position: fixed;
+            bottom: 10vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90vw;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        .progress-bar {
+            width: 80%;
+            height: 5px;
+            background: gray;
+            margin: 0 10px;
+            position: relative;
+        }
+        .progress {
+            height: 5px;
+            background: white;
+            width: 0%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .song-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 0.5;
+        }
+
+        #artistImage{
+            width: 18vw;
+            height: 18vw; 
+            border-radius: 10px;
+            margin-left: 1.4vw;
+
+        }
+
+        #artistNamecontainer{
+            margin-left: 40px;
+        }
+
+        #artistNamecontainer h4{
+                   font-size: 6.2vw;
+        }
+
+        #artistNamecontainer p{
+                  font-size: 1.8vw;
+        }
+ 
