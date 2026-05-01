@@ -10,8 +10,8 @@ const generateOTP = () => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'ardiliumplatform@gmail.com',
-        pass: 'axzt dwsb qxaa jrzx'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -51,7 +51,7 @@ const sendOTPEmail = async (email, otp, type = 'register') => {
     }
 
     const mailOptions = {
-        from: '"MUSI-DEO" <ardiliumplatform@gmail.com>',
+        from: `"MUSI-DEO" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: subject,
         html: htmlContent
@@ -129,7 +129,7 @@ exports.verifyOTP = async (req, res) => {
             </div>
         `;
         await transporter.sendMail({
-            from: '"MUSI-DEO" <ardiliumplatform@gmail.com>',
+            from: `"MUSI-DEO" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Welcome to MUSI-DEO!',
             html: welcomeContent
