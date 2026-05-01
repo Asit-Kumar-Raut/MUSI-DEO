@@ -7,4 +7,5 @@ dist
 # Keep UI images but ignore large media folders
 frontend/public/media/*.mp3
 frontend/public/media/*.mp4
+!frontend/public/media/musicbackground.mp4
 backend/media/*
