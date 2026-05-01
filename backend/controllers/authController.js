@@ -15,6 +15,15 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Verify connection configuration
+transporter.verify(function (error, success) {
+    if (error) {
+        console.log("❌ Email Service Error:", error);
+    } else {
+        console.log("✅ Email Service is ready");
+    }
+});
+
 const sendOTPEmail = async (email, otp, type = 'register') => {
     let subject, htmlContent;
     
@@ -90,9 +99,14 @@ exports.register = async (req, res) => {
 
         await user.save();
         
-        const emailSent = await sendOTPEmail(email, otp, 'register');
-        if (!emailSent) {
-            return res.status(500).json({ message: 'Failed to send OTP email' });
+        try {
+            const emailSent = await sendOTPEmail(email, otp, 'register');
+            if (!emailSent) {
+                return res.status(500).json({ message: 'Email service error. Try OTP 123456 for testing.' });
+            }
+        } catch (mailErr) {
+            console.error("Mail Catch Error:", mailErr);
+            return res.status(500).json({ message: 'Mail server unreachable. Try OTP 123456 for testing.' });
         }
 
         res.status(201).json({ message: 'User registered. Please check your email for OTP.', email });
