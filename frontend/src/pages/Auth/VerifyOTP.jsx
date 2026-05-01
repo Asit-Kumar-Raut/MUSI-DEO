@@ -16,7 +16,7 @@ const VerifyOTP = () => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/verify-otp', { email, otp });
+      await axios.post('https://musi-deo.vercel.app/api/auth/verify-otp', { email, otp });
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Verification failed');

@@ -4,7 +4,7 @@ import { Mic, MicOff, Send, X, Bot, MessageSquare, Volume2, Sparkles, Wand2 } fr
 import axios from 'axios';
 import { usePlayer } from '../context/PlayerContext';
 
-const API = 'http://localhost:5001/api';
+const API = 'https://musi-deo.vercel.app/api';
 
 const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);

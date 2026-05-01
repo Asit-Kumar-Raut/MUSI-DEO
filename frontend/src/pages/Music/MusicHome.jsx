@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { allSongs } from '../../data/mediaData';
 
-const API = 'http://localhost:5001/api';
+const API = 'https://musi-deo.vercel.app/api';
 
 const FAMOUS_SINGERS = [
   { name: 'Arijit Singh', img: '/media/arijit.jpg', genre: 'Romantic' },
@@ -63,7 +63,7 @@ const MusicHome = () => {
 
   const checkConnection = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/');
+      const res = await axios.get('https://musi-deo.vercel.app/');
       alert(`Backend Status: ONLINE\nMessage: ${res.data.message || 'Ready'}`);
     } catch (err) {
       alert(`Backend Status: OFFLINE\nError: ${err.message}\n\nMake sure to run 'node server.js' in the backend folder!`);

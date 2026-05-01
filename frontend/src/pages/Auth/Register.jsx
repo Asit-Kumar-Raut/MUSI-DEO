@@ -16,7 +16,7 @@ const Register = () => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/register', { username, email, password });
+      await axios.post('https://musi-deo.vercel.app/api/auth/register', { username, email, password });
       navigate('/verify', { state: { email } });
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
