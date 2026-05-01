@@ -21,7 +21,8 @@ const Login = () => {
       login(res.data.user, res.data.token);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      const msg = err.response?.data?.error || err.response?.data?.message || 'Login failed';
+      setError(msg);
     } finally { setLoading(false); }
   };
 

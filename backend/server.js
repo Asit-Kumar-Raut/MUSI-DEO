@@ -47,7 +47,13 @@ app.get('/api/music/search', async (req, res) => {
 app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
-  res.json({ status: "ok", port: PORT, message: "MUSI-DEO API v2" });
+  const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
+  res.json({ 
+    status: "ok", 
+    port: PORT, 
+    database: dbStatus,
+    message: "MUSI-DEO API v2" 
+  });
 });
 
 // MongoDB Connection
