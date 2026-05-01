@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <title>Music Player</title>
+    <link rel="stylesheet" href="music.css">
+</head>
+<body>
+   
+    <header>
+        <h1>My Music</h1>
+    </header>
+
+   
+    <main>
+       
+        <section id="all" class="page active">
+            <h2>All Music</h2>
+            <div id="all-music-content">
+                <div id="artists">
+                    <h3>Artists</h3>
+                    <a href="http://127.0.0.1:5500/HTML/darshna2.html">
+                    <div class="artist">
+                        <img class="artist-image" src="darshna.jpg" alt="Artist 1">
+                        <span class="artist-name">Darshan Raval</span>
+                    </div>
+                </a>
+                    <a href="http://127.0.0.1:5500/HTML/jubin.html">
+                    <div class="artist">
+                        <img class="artist-image" src="jubin.jpg" alt="Artist 3">
+                        <span class="artist-name">jubin Nautiyal</span>
+                    </div>
+                    </a>
+                    <a href="http://127.0.0.1:5500/HTML/arijitsingh.html">
+                    <div class="artist">
+                        <img class="artist-image" src="arijit.jpg" alt="Artist 2">
+                        <span class="artist-name">Arijit Singh</span>
+                    </div>
+                    </a>
+                    <div class="artist">
+                        <img class="artist-image" src="honey.jpg" alt="Artist 4">
+                        <span class="artist-name">yo yo Honey Singh</span>
+                    </div>
+                    <div class="artist">
+                        <img class="artist-image" src="emiway.jpg" alt="Artist 5">
+                        <span class="artist-name">Emiway Bantai</span>
+                    </div>
+                    <div class="artist">
+                        <img class="artist-image" src="paradox.jpg" alt="Artist 6">
+                        <span class="artist-name">Paradox</span>
+                    </div>
+                    <div class="artist">
+                        <img class="artist-image" src="sujal.jpg" alt="Artist 7">
+                        <span class="artist-name">sujal</span>
+                    </div>
+                </div>
+                <div id="songs">
+                    <h3>Songs</h3>
+                    <div class="song">
+                        <img src="mojagap.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">MO JAGA</span>
+                        <button class="play-button" data-audio="mojaga.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="jaga.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Mandir Parikrama</span>
+                        <button class="play-button" data-audio="jagas.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="agar.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Agar Tum sath ho</span>
+                        <button class="play-button" data-audio="agar1.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="badsaha.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">BADSAHA</span>
+                        <button class="play-button" data-audio="badsahas.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="merana.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Mera na hua</span>
+                        <button class="play-button" data-audio="meranas.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="sach.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Sach kehe raha hai</span>
+                        <button class="play-button" data-audio="sachs.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="alliz.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">all izz well</span>
+                        <button class="play-button" data-audio="allizzs.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="give.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">give me some sumsine</span>
+                        <button class="play-button" data-audio="gives.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="ohbeliyap.jpg" class="song-image" alt="Song 1 Image">
+                        <span class="song-title">oh beliya</span>
+                        <button class="play-button" data-audio="ohbeliya.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 1">❤️</button>
+                    </div>
+                    <div class="song">
+                        <img src="tuhai.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">TU HAI</span>
+                        <button class="play-button" data-audio="tuhais.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️</button>
+                    </div>
+                    <div class="song">
+                        <img src="kinisoni.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Kini Soni</span>
+                        <button class="play-button" data-audio="kinisonis.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️</button>
+                    </div>
+                    <div class="song">
+                        <img src="asalme.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Asal mein</span>
+                        <button class="play-button" data-audio="asalmes.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="payal.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">payal</span>
+                        <button class="play-button" data-audio="payals.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="kholo.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">KHOLO-KHOLO</span>
+                        <button class="play-button" data-audio="kholos.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="kiss.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">kiss ka sika</span>
+                        <button class="play-button" data-audio="kisss.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="srivali.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">srivali</span>
+                        <button class="play-button" data-audio="sribalis.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="asalme.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Asal mein</span>
+                        <button class="play-button" data-audio="asalmes.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+                    <div class="song">
+                        <img src="asalme.jpg" class="song-image" alt="Song 2 Image">
+                        <span class="song-title">Asal mein</span>
+                        <button class="play-button" data-audio="asalmes.mp3">▶</button>
+                        <button class="add-to-library" data-song="Song 2">❤️ </button>
+                    </div>
+       
+                </div>
+            </div>
+        </section>
+
+     
+        <section id="search" class="page">
+            <h2>Search Music</h2>
+            <input type="text" id="search-bar" placeholder="What do you want to listen to?">
+            <div id="song-categories">
+               <a href="http://127.0.0.1:5500/HTML/madeforyou.html"> <button class="category">2024</button></a>
+                <a href="http://127.0.0.1:5500/HTML/newrele.html"><button class="category">New relessed</button></a>
+               <a href="http://127.0.0.1:5500/HTML/hindi.html"> <button class="category">hindhi</button></a>
+                <button class="category">telugu</button>
+                <button class="category">punjabi</button>
+                <button class="category">Tamil</button>
+                <button class="category">podcast charts</button>
+                <button class="category">bhojpuri</button>
+            </div>
+                <div id="search-container">
+                </div>
+                
+            </div>
+        </section>
+
+       
+        <section id="library" class="page">
+            <h2>Your Library</h2>
+            <div id="library-content"></div>
+        </section>
+
+    
+        <section id="premium" class="page">
+            <h2>Premium Plans</h2>
+            <p>Enjoy unlimited music, ad-free listening, and listen without limits.Try 2 months of premium ₹70</p>
+            <button class="get-premium">get premium individual</button>
+        </section><br>
+        <section id="premium" class="page">
+            <h2>Premium Plans</h2>
+            <p>Enjoy unlimited music, ad-free listening, and listen without limits.Try 1 week of premium ₹29</p>
+            <button class="get-premium">get premium individual</button>
+        </section>
+    </main>
+
+    
+    <div id="now-playing" class="now-playing">
+        <span id="now-playing-text">Now Playing: None</span>
+        <audio controls id="audio-player">
+            <source id="audio-source" src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <button id="minimize-now-playing" class="minimize-button">⬇</button>
+    </div>
+
+   
+    <footer>
+        <nav>
+            <a href="#" data-page="all" class="active">🎵</a>
+            <a href="#" data-page="search">🔍</a>
+            <a href="#" data-page="library">📂</a>
+            <a href="#" data-page="premium">💎</a>
+        </nav>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+       
+        const navLinks = document.querySelectorAll('footer nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+              
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+              
+                const targetPage = document.getElementById(this.getAttribute('data-page'));
+                targetPage.classList.add('active');
+    
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+    
+      
+        const playButtons = document.querySelectorAll('.play-button');
+        playButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const songTitle = this.parentElement.querySelector('.song-title').innerText;
+                const audioSource = document.getElementById('audio-source');
+                const audioPlayer = document.getElementById('audio-player');
+                
+               
+                audioSource.src = button.getAttribute('data-audio');
+                audioPlayer.load();
+                audioPlayer.play();
+                
+               
+                document.getElementById('now-playing').style.display = 'block';
+                document.getElementById('now-playing-text').innerText = `Now Playing: ${songTitle}`;
+            });
+        });
+    
+        const minimizeButton = document.getElementById('minimize-now-playing');
+        minimizeButton.addEventListener('click', function() {
+            document.getElementById('now-playing').style.display = 'none';
+        });
+    
+     
+        const addToLibraryButtons = document.querySelectorAll('.add-to-library');
+        addToLibraryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const songTitle = this.parentElement.querySelector('.song-title').innerText;
+                const libraryContent = document.getElementById('library-content');
+    
+               
+                const libraryItem = document.createElement('div');
+                libraryItem.classList.add('library-item');
+                libraryItem.innerText = songTitle;
+    
+                libraryContent.appendChild(libraryItem);
+            });
+        });
+    
+        document.getElementById('all').classList.add('active');
+    });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    let audioPlayer = document.getElementById("audio-player");
+    let audioSource = document.getElementById("audio-source");
+    let nowPlayingText = document.getElementById("now-playing-text");
+    let minimizeButton = document.getElementById("minimize-now-playing");
+
+    document.querySelectorAll(".play-button").forEach(button => {
+        button.addEventListener("click", function () {
+            let songTitle = this.parentElement.querySelector(".song-title").innerText;
+            let songFile = this.getAttribute("data-song");
+
+            if (audioSource.src.includes(songFile) && !audioPlayer.paused) {
+            
+                audioPlayer.pause();
+                this.textContent = "▶"; 
+            } else {
+               
+                audioSource.src = songFile;
+                audioPlayer.load();
+                audioPlayer.play();
+                nowPlayingText.textContent = "Now Playing: " + songTitle;
+                this.textContent = "⏸"; // Change to pause icon
+                document.getElementById("now-playing").style.display = "block";
+            }
+        });
+    });
+
+    
+    minimizeButton.addEventListener("click", function () {
+        document.getElementById("now-playing").style.display = "none";
+    });
+});
+
+
+
+    const playButtons = document.querySelectorAll('.play-button');
+    playButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const songTitle = this.parentElement.querySelector('.song-title').innerText;
+            const audioSource = document.getElementById('audio-source');
+            const audioPlayer = document.getElementById('audio-player');
+            
+
+            audioSource.src = button.getAttribute('data-audio');
+            audioPlayer.load();
+            audioPlayer.play();
+            
+   
+            document.getElementById('now-playing').style.display = 'block';
+            document.getElementById('now-playing-text').innerText = `Now Playing: ${songTitle}`;
+        });
+    });
+
+  
+    const minimizeButton = document.getElementById('minimize-now-playing');
+    minimizeButton.addEventListener('click', function() {
+        document.getElementById('now-playing').style.display = 'none';
+    });
+
+ 
+    const addToLibraryButtons = document.querySelectorAll('.add-to-library');
+    addToLibraryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const songTitle = this.parentElement.querySelector('.song-title').innerText;
+            const audioSource = this.parentElement.querySelector('.play-button').getAttribute('data-audio');
+            const libraryContent = document.getElementById('library-content');
+
+
+            const libraryItem = document.createElement('div');
+            libraryItem.classList.add('library-item');
+            libraryItem.innerHTML = `
+                <span class="library-song-title">${songTitle}</span>
+                <button class="play-button" data-audio="${audioSource}">Play</button>
+                <button class="delete-button">❌</button>
+            `;
+
+
+            const playButton = libraryItem.querySelector('.play-button');
+            playButton.addEventListener('click', function() {
+                const audioSource = playButton.getAttribute('data-audio');
+                const audioPlayer = document.getElementById('audio-player');
+                const audio = document.getElementById('audio-source');
+                audio.src = audioSource;
+                audioPlayer.load();
+                audioPlayer.play();
+                document.getElementById('now-playing').style.display = 'block';
+                document.getElementById('now-playing-text').innerText = `Now Playing: ${songTitle}`;
+            });
+
+
+            const deleteButton = libraryItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', function() {
+                libraryContent.removeChild(libraryItem);
+            });
+
+       
+            libraryContent.appendChild(libraryItem);
+        });
+    });
+
+  
+    document.getElementById('all').classList.add('active');
+
+
+document.addEventListener('DOMContentLoaded', function() {
+ 
+    const allSongs = [
+        { title: "oh beliya", image: "ohbeliyap.jpg", audio: "ohbeliya.mp3" },
+        { title: "TU HAI", image: "tuhai.jpg", audio: "tuhais.mp3" },
+        { title: "kini soni", image: "kinisoni.jpg", audio: "kinisonis.mp3" },
+        { title: "asal mein", image: "asalme.jpg", audio: "asalmes.mp3" },
+        { title: "payal", image: "payal.jpg", audio: "payals.mp3" },
+        { title: "mo jaga", image: "mojagap.jpg", audio: "mojaga.mp3" },
+        { title: "mandira parikrama", image: "jaga.jpg", audio: "jagas.mp3" },
+        { title: "all izz well", image: "alliz.jpg", audio: "allizzs.mp3" },
+        { title: "Sach kehe raha hai", image: "sach.jpg", audio: "sachs.mp3" },
+        { title: "give me some sunsine", image: "give.jpg", audio: "gives.mp3" },
+        { title: "kholo kholo", image: "kholo.jpg", audio: "kholos.mp3" },
+        { title: "kiss ka sika", image: "kiss.jpg", audio: "kisss.mp3" },
+        { title: "srivali", image: "srivali.jpg", audio: "sribalis.mp3" },
+        { title: "mera na hua", image: "merana.jpg", audio: "meranas.mp3" },
+        { title: "badsaha", image: "badsaha.jpg", audio: "badsahas.mp3" },
+    ];
+
+
+    const searchBar = document.getElementById("search-bar");
+    const searchResultsContainer = document.getElementById("search-container");
+
+    searchBar.addEventListener('input', function() {
+        const query = searchBar.value.toLowerCase().trim();
+
+        if (query === "") {
+            searchResultsContainer.innerHTML = ''; 
+            return;
+        }
+
+        const filteredSongs = allSongs.filter(song => song.title.toLowerCase().includes(query));
+
+        
+        displaySearchResults(filteredSongs);
+    });
+
+   
+    function displaySearchResults(songs) {
+      
+        searchResultsContainer.innerHTML = '';
+
+        if (songs.length === 0) {
+            searchResultsContainer.innerHTML = '<p>No songs found</p>';
+            return;
+        }
+
+       
+        songs.forEach(song => {
+            const songElement = document.createElement("div");
+            songElement.classList.add("song");
+
+            songElement.innerHTML = `
+                <img src="${song.image}" class="song-image" alt="${song.title}">
+                <span class="song-title">${song.title}</span>
+                <button class="play-button" data-audio="${song.audio}">▶</button>
+            `;
+
+            
+            songElement.querySelector(".play-button").addEventListener('click', function() {
+                const audioSource = document.getElementById('audio-source');
+                const audioPlayer = document.getElementById('audio-player');
+                audioSource.src = song.audio;
+                audioPlayer.load();
+                audioPlayer.play();
+                document.getElementById('now-playing').style.display = 'block';
+                document.getElementById('now-playing-text').innerText = `Now Playing: ${song.title}`;
+            });
+
+          
+            searchResultsContainer.appendChild(songElement);
+        });
+    }
+
+  
+    const playButtons = document.querySelectorAll('.play-button');
+    playButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const songTitle = this.parentElement.querySelector('.song-title').innerText;
+            const audioSource = document.getElementById('audio-source');
+            const audioPlayer = document.getElementById('audio-player');
+
+         
+            audioSource.src = button.getAttribute('data-audio');
+            audioPlayer.load();
+            audioPlayer.play();
+
+            document.getElementById('now-playing').style.display = 'block';
+            document.getElementById('now-playing-text').innerText = `Now Playing: ${songTitle}`;
+        });
+    });
+
+    const addToLibraryButtons = document.querySelectorAll('.add-to-library');
+    addToLibraryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const songTitle = this.parentElement.querySelector('.song-title').innerText;
+            const audioSource = this.parentElement.querySelector('.play-button').getAttribute('data-audio');
+            const libraryContent = document.getElementById('library-content');
+
+      
+            const libraryItem = document.createElement('div');
+            libraryItem.classList.add('library-item');
+            libraryItem.innerHTML = `
+                <span class="library-song-title">${songTitle}</span>
+                <button class="play-button" data-audio="${audioSource}">Play</button>
+                <button class="delete-button">❌</button>
+            `;
+
+            const playButton = libraryItem.querySelector('.play-button');
+            playButton.addEventListener('click', function() {
+                const audioSource = playButton.getAttribute('data-audio');
+                const audioPlayer = document.getElementById('audio-player');
+                const audio = document.getElementById('audio-source');
+                audio.src = audioSource;
+                audioPlayer.load();
+                audioPlayer.play();
+                document.getElementById('now-playing').style.display = 'block';
+                document.getElementById('now-playing-text').innerText = `Now Playing: ${songTitle}`;
+            });
+
+         
+            const deleteButton = libraryItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', function() {
+                libraryContent.removeChild(libraryItem);
+            });
+
+           
+            libraryContent.appendChild(libraryItem);
+        });
+    });
+
+    document.getElementById('all').classList.add('active');
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const audioPlayer = document.getElementById('audio-player');
+    const audioSource = document.getElementById('audio-source');
+    const nowPlayingText = document.getElementById('now-playing-text');
+    const minimizeButton = document.getElementById('minimize-now-playing');
+    const fixedBottomBar = document.getElementById('bottom-navigation');
+    const nowPlayingSection = document.getElementById('now-playing');
+
+
+    const showButton = document.createElement('button');
+    showButton.innerText = '⬆ Show Player';
+    showButton.id = 'show-now-playing';
+    showButton.style.position = 'fixed';
+    showButton.style.bottom = '60px';
+    showButton.style.left = '20px';
+    showButton.style.padding = '10px';
+    showButton.style.borderRadius = '8px';
+    showButton.style.background = '#333';
+    showButton.style.color = 'white';
+    showButton.style.display = 'none';
+    showButton.style.zIndex = '10';
+    document.body.appendChild(showButton);
+
+
+    const replayButton = document.createElement('button');
+    replayButton.innerText = '🔄 Replay';
+    replayButton.id = 'replay-button';
+    replayButton.style.marginLeft = '10px';
+
+    const loopButton = document.createElement('button');
+    loopButton.innerText = '🔁 0';
+    loopButton.id = 'loop-button';
+    loopButton.style.marginLeft = '10px';
+
+    const nextButton = document.createElement('button');
+    nextButton.innerText = '⏭ Next';
+    nextButton.id = 'next-button';
+    nextButton.style.marginLeft = '10px';
+
+    const prevButton = document.createElement('button');
+    prevButton.innerText = '⏮ Previous';
+    prevButton.id = 'prev-button';
+    prevButton.style.marginLeft = '10px';
+
+    nowPlayingSection.appendChild(prevButton);
+    nowPlayingSection.appendChild(replayButton);
+    nowPlayingSection.appendChild(loopButton);
+    nowPlayingSection.appendChild(nextButton);
+
+    let loopCount = 0;
+    let currentSongIndex = 0;
+    const allSongs = document.querySelectorAll('.song');
+
+    function playSong(index) {
+        if (index >= 0 && index < allSongs.length) {
+            currentSongIndex = index;
+            const songDiv = allSongs[index];
+            const songTitle = songDiv.querySelector('.song-title').innerText;
+            const songFile = songDiv.querySelector('.play-button').getAttribute('data-audio');
+
+            audioSource.src = songFile;
+            audioPlayer.load();
+            audioPlayer.play();
+
+            nowPlayingText.innerText = `Now Playing: ${songTitle}`;
+            nowPlayingSection.style.display = 'block';
+            showButton.style.display = 'none';
+        }
+    }
+
+    document.querySelectorAll('.play-button').forEach((button, index) => {
+        button.addEventListener('click', function () {
+            playSong(index);
+        });
+    });
+
+    replayButton.addEventListener('click', function () {
+        if (audioSource.src) {
+            audioPlayer.currentTime = 0;
+            audioPlayer.play();
+        }
+    });
+
+    loopButton.addEventListener("click", function () {
+        loopCount = (loopCount + 1) % 4; 
+        loopButton.innerText = `🔁 ${loopCount}`;
+    });
+
+    audioPlayer.addEventListener("ended", function () {
+        if (loopCount > 0) {
+            loopCount--;
+            loopButton.innerText = `🔁 ${loopCount}`;
+            audioPlayer.currentTime = 0;
+            audioPlayer.play();
+        } else {
+            if (currentSongIndex < allSongs.length - 1) {
+                playSong(currentSongIndex + 1);
+            }
+        }
+    });
+
+    nextButton.addEventListener('click', function () {
+        if (currentSongIndex < allSongs.length - 1) {
+            playSong(currentSongIndex + 1);
+        }
+    });
+
+    prevButton.addEventListener('click', function () {
+        if (currentSongIndex > 0) {
+            playSong(currentSongIndex - 1);
+        }
+    });
+
+    minimizeButton.addEventListener('click', function () {
+        nowPlayingSection.style.display = 'none';
+        showButton.style.display = 'block';
+    });
+
+    showButton.addEventListener('click', function () {
+        nowPlayingSection.style.display = 'block';
+        showButton.style.display = 'none';
+    });
+});
+
+
+
+    </script> 
+</body>
+</html>

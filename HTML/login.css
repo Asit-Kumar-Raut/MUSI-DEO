@@ -1,0 +1,126 @@
+/* style.css */
+body {
+    background-image: url("login.avif"); /* Replace with your background image */
+    background-size: cover;
+    background-repeat: no-repeat;
+    font-family: sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #fff;
+}
+
+.container {
+    width: 90%;
+    max-width: 400px;
+    height: auto;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.form-box {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2, h3 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.input-group {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.input-field {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-bottom: 1px solid #999;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    background: #ff6b6b;
+    border: 0;
+    outline: none;
+    border-radius: 30px;
+    color: #fff;
+}
+
+#thankYouMessage {
+    text-align: center;
+}
+
+#thankYouMessage button {
+    background-color: #ff6b6b;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        max-width: 95%;
+        padding: 15px;
+    }
+
+    .input-field, .submit-btn, #thankYouMessage button {
+        font-size: 14px;
+    }
+
+    h2, h3 {
+        font-size: 1.5em;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+    .container {
+        max-width: 70%;
+        padding: 20px;
+    }
+
+    .input-field, .submit-btn, #thankYouMessage button {
+        font-size: 16px;
+    }
+
+    h2, h3 {
+        font-size: 1.8em;
+    }
+}
+
+@media (min-width: 1201px) {
+    .container {
+        max-width: 400px;
+        padding: 25px;
+    }
+
+    .input-field, .submit-btn, #thankYouMessage button {
+        font-size: 16px;
+    }
+
+    h2, h3 {
+        font-size: 2em;
+    }
+}

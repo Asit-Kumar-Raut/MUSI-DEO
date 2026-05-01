@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Stream</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <link rel="stylesheet" href="video.css">
+</head>
+<body>
+    <header>
+        <h1>VIDEO STREAM</h1>
+        <div class="search-container">
+            <input type="text" id="searchBar" class="search-bar" placeholder="Search videos..." />
+            <button id="searchButton" class="search-btn">Search</button>
+            <button id="darkModeToggle">Dark Mode</button>
+        </div>
+    </header>
+
+    <main id="videos"></main>
+
+    <nav class="bottom-nav">
+        <ul>
+            <li><a href="#videos">Videos</a></li>
+            <li><a href="./premium.html">Premium</a></li>
+        </ul>
+    </nav>
+
+    <script type="text/babel">
+        class VideoGrid extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    videos: [
+                        { id: "1", title: "BADSAHA(EMIWAY)", src: "badsaha22.mp4" },
+                        { id: "2", title: "TU MERA NA HUA", src: "merana22.mp4" },
+                        { id: "3", title: "AJ KI RAAT", src: "ajjkirat.mp4" },
+                        { id: "4", title: "BABY feat.ludacris", src: "wheniwas.mp4" },
+                        { id: "5", title: "TAZA KABHAR", src: "paisa.mp4" },
+                        { id: "6", title: "MILLIONIRE", src: "million.mp4" },
+                        { id: "7", title: "SAJNA", src: "sajna1.mp4" },
+                        { id: "8", title: "JENE LAGA HOON", src: "jeene.mp4" },
+                        { id: "9", title: "FAKIRA", src: "fakira.mp4" }
+                    ],
+                    searchTerm: ""
+                };
+            }
+
+            handleSearch = () => {
+                const searchTerm = document.getElementById("searchBar").value.toLowerCase();
+                this.setState({ searchTerm });
+            };
+
+            render() {
+                const filteredVideos = this.state.videos.filter(video =>
+                    video.title.toLowerCase().includes(this.state.searchTerm)
+                );
+
+                return (
+                    <section className="video-grid">
+                        {filteredVideos.map(video => (
+                            <div key={video.id} className="video-item">
+                                <video controls width="320" height="240">
+                                    <source src={video.src} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                                <p className="video-title">{video.title}</p>
+                            </div>
+                        ))}
+                    </section>
+                );
+            }
+        }
+
+        ReactDOM.render(<VideoGrid />, document.getElementById("videos"));
+        const videoGrid = ReactDOM.render(<VideoGrid />, document.getElementById("videos"));
+
+        document.getElementById("searchButton").addEventListener("click", () => {
+            videoGrid.handleSearch();
+        });
+
+        document.getElementById("darkModeToggle").addEventListener("click", () => {
+            document.body.classList.toggle("dark-mode");
+            document.body.style.backgroundColor = document.body.classList.contains("dark-mode") ? "#222" : "#f4f4f4";
+
+        });
+
+    </script>
+</body>
+</html>

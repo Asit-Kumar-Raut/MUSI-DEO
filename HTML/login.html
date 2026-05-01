@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container" id="loginForm">
+        <div class="form-box">
+            <h2>Login</h2>
+            <input type="text" class="input-field" id="name" placeholder="Name" required><br>
+            <input type="email" class="input-field" id="email" placeholder="Email ID" required><br>
+            <input type="password" class="input-field" id="password" placeholder="Password" required><br>
+            <button class="submit-btn" onclick="loginUser()">Login</button>
+        </div>
+    </div>
+
+    <div class="container" id="thankYouMessage" style="display: none;">
+        <h2>Thank You for Joining Us!</h2>
+        <a href="home.html"><button>GO to Home</button></a>
+    </div>
+
+    <script>
+        function loginUser() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('thankYouMessage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
