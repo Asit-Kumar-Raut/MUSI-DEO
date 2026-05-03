@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, Library, PlusCircle, Heart, LogOut, Video, Menu, X, Music as MusicIcon } from 'lucide-react';
+import { Home, Search, Library, PlusCircle, Heart, LogOut, Video, Menu, X, Music as MusicIcon, MessageSquare } from 'lucide-react';
 import MusicPlayer from './components/MusicPlayer';
 import MusicHome from './MusicHome';
 import MusicSearch from './MusicSearch';
@@ -25,6 +25,7 @@ const SidebarContent = ({ onClose }) => {
     { path: '/music', label: 'Home', Icon: Home },
     { path: '/music/search', label: 'Search', Icon: Search },
     { path: '/music/library', label: 'Your Library', Icon: Library },
+    { path: '/contact', label: 'Contact & Feedback', Icon: MessageSquare },
   ];
 
   return (

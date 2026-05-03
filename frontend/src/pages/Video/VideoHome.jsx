@@ -2,16 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Play, Search, TrendingUp, Music, Info, ExternalLink, X } from 'lucide-react';
 import { allVideos } from '../../data/mediaData';
+import { useAuth } from '../../context/AuthContext';
 
 const VideoCard = ({ video, type }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const isYoutube = type === 'yt';
+  
+  const handleAction = (e) => {
+    if (isYoutube && user?.isGuest) {
+      e.preventDefault();
+      alert("To watch global YouTube videos and enjoy premium content, please Login first! Guest account only supports Local Library.");
+      return;
+    }
+  };
   const id = isYoutube ? `yt-${video.id}` : `local-${video.id}`;
   const thumb = isYoutube 
     ? `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg` 
     : (video.thumbnail || '/media/sujal.jpg');
 
   return (
-    <Link to={`/video/watch/${id}`} style={{ textDecoration: 'none', color: '#fff' }}>
+    <Link to={`/video/watch/${id}`} onClick={handleAction} style={{ textDecoration: 'none', color: '#fff' }}>
       <div className="video-card" style={{ background: '#181818', borderRadius: '12px', padding: '12px', height: '100%', transition: 'all 0.3s', position: 'relative', overflow: 'hidden', border: '1px solid transparent' }}>
         <div style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '8px', overflow: 'hidden', background: '#000' }}>
           <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

@@ -12,6 +12,14 @@ export const PlayerProvider = ({ children }) => {
   const [isLooping, setIsLooping] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
   const audioRef = useRef(new Audio());
+
+  // Load last played song from localStorage on mount
+  useEffect(() => {
+    const savedSong = localStorage.getItem('musideo_last_song');
+    const savedPlaylist = localStorage.getItem('musideo_last_playlist');
+    if (savedSong) setCurrentSong(JSON.parse(savedSong));
+    if (savedPlaylist) setPlaylist(JSON.parse(savedPlaylist));
+  }, []);
   
   const stateRef = useRef({ playlist: [], currentSong: null, isLooping: false });
   useEffect(() => {
@@ -31,6 +39,21 @@ export const PlayerProvider = ({ children }) => {
     audioRef.current.play().catch(() => {});
     setCurrentSong(song);
     setIsPlaying(true);
+
+    // Persist
+    localStorage.setItem('musideo_last_song', JSON.stringify(song));
+    if (list) {
+      setPlaylist(list);
+      localStorage.setItem('musideo_last_playlist', JSON.stringify(list));
+    }
+  };
+
+  const addToQueue = (song) => {
+    setPlaylist(prev => {
+      const newList = [...prev, song];
+      localStorage.setItem('musideo_last_playlist', JSON.stringify(newList));
+      return newList;
+    });
   };
 
   const stopMusic = () => {
@@ -121,7 +144,7 @@ export const PlayerProvider = ({ children }) => {
   };
 
   return (
-    <PlayerContext.Provider value={{ currentSong, isPlaying, progress, currentTime, duration, playlist, isLooping, isShuffled, playSong, stopMusic, togglePlay, toggleLoop, toggleShuffle, playNext, playPrev, seekTo, formatTime, setPlaylist }}>
+    <PlayerContext.Provider value={{ currentSong, isPlaying, progress, currentTime, duration, playlist, isLooping, isShuffled, playSong, addToQueue, stopMusic, togglePlay, toggleLoop, toggleShuffle, playNext, playPrev, seekTo, formatTime, setPlaylist }}>
       {children}
     </PlayerContext.Provider>
   );

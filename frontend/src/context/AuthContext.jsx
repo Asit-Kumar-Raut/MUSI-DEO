@@ -18,9 +18,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData, token) => {
-    setUser(userData);
+    const userWithGuestFlag = { ...userData, isGuest: false };
+    setUser(userWithGuestFlag);
     localStorage.setItem('musideo_token', token);
-    localStorage.setItem('musideo_user', JSON.stringify(userData));
+    localStorage.setItem('musideo_user', JSON.stringify(userWithGuestFlag));
+  };
+
+  const loginAsGuest = () => {
+    const guestUser = { id: 'guest', username: 'Guest User', email: 'guest@musideo.local', isGuest: true };
+    setUser(guestUser);
+    localStorage.setItem('musideo_user', JSON.stringify(guestUser));
+    // No token for guest
   };
 
   const logout = () => {
@@ -30,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, loginAsGuest, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

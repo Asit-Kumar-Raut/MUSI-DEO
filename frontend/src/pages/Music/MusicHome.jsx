@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Play, TrendingUp, ChevronRight, Music as MusicIcon, AlertCircle, RefreshCw, Activity } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { allSongs } from '../../data/mediaData';
@@ -38,7 +39,16 @@ const MusicHome = () => {
   const [loading, setLoading] = useState(true);
   const [debugMsg, setDebugMsg] = useState('');
   const { playSong, currentSong } = usePlayer();
+  const { user } = useAuth();
   const navigate = useNavigate();
+
+  const handleGlobalAction = (action) => {
+    if (user?.isGuest) {
+      alert("To enjoy all the global music and premium features, please Login first! Guest account only supports Local Gallery.");
+      return;
+    }
+    action();
+  };
 
   const fetchTrending = async () => {
     setLoading(true);
@@ -94,7 +104,7 @@ const MusicHome = () => {
         <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>Global Stars</h3>
         <div style={{ display: 'flex', gap: '24px', overflowX: 'auto', paddingBottom: '10px' }} className="no-scrollbar">
           {FAMOUS_SINGERS.map((singer, i) => (
-            <div key={i} onClick={() => navigate(`/music/search?q=${encodeURIComponent(singer.name)}`)}
+            <div key={i} onClick={() => handleGlobalAction(() => navigate(`/music/search?q=${encodeURIComponent(singer.name)}`))}
               className="singer-card"
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', minWidth: '140px', textAlign: 'center' }}>
               <div style={{ width: '130px', height: '130px', borderRadius: '50%', overflow: 'hidden', boxShadow: '0 12px 32px rgba(0,0,0,0.6)', border: '3px solid transparent', transition: '0.4s' }}>
@@ -135,7 +145,7 @@ const MusicHome = () => {
             {trending.slice(0, 15).map((song) => {
               const active = currentSong?.id === song.id;
               return (
-                <div key={song.id} onClick={() => playSong(song, trending)}
+                <div key={song.id} onClick={() => handleGlobalAction(() => playSong(song, trending))}
                   className="song-row"
                   style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px', borderRadius: '12px', cursor: 'pointer', background: active ? 'rgba(29,185,84,0.15)' : 'rgba(255,255,255,0.03)', transition: '0.3s', border: active ? '1px solid #1db954' : '1px solid transparent' }}>
                   <img src={song.image} alt="" style={{ width: '56px', height: '56px', borderRadius: '8px', objectFit: 'cover', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }} />

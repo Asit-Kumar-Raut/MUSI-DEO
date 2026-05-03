@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search as SearchIcon, Play, Pause, Clock, AlertCircle, RefreshCcw, Plus } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
 import { usePlaylists } from '../../context/PlaylistContext';
+import { useAuth } from '../../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 
@@ -28,6 +29,15 @@ const MusicSearch = () => {
   const [error, setError] = useState(null);
   const { playSong, currentSong } = usePlayer();
   const { playlists, addToPlaylist } = usePlaylists();
+  const { user } = useAuth();
+
+  const handleGlobalAction = (action) => {
+    if (user?.isGuest) {
+      alert("To enjoy all the global music and premium features, please Login first! Guest account only supports Local Gallery.");
+      return;
+    }
+    action();
+  };
 
   const doSearch = async (q) => {
     if (!q.trim()) { setResults([]); setSearched(false); return; }
@@ -87,7 +97,7 @@ const MusicSearch = () => {
               {results.length > 0 ? results.map((song, idx) => {
                 const active = currentSong?.id === song.id;
                 return (
-                  <div key={song.id} onClick={() => playSong(song, results)}
+                  <div key={song.id} onClick={() => handleGlobalAction(() => playSong(song, results))}
                     style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', background: active ? 'rgba(29,185,84,0.15)' : 'transparent', transition: '0.15s' }}>
                     <span style={{ width: '24px', color: '#a0a0a0', fontSize: '13px', textAlign: 'right' }}>{idx + 1}</span>
                     <img src={song.image} alt="" style={{ width: '44px', height: '44px', borderRadius: '4px', objectFit: 'cover' }} />
@@ -108,7 +118,7 @@ const MusicSearch = () => {
           <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, marginBottom: '20px' }}>Browse All</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
             {categories.map((cat, i) => (
-              <div key={cat} onClick={() => { setQuery(cat); doSearch(cat); }}
+              <div key={cat} onClick={() => handleGlobalAction(() => { setQuery(cat); doSearch(cat); })}
                 style={{ background: categoryColors[i % categoryColors.length], borderRadius: '8px', padding: '16px', height: '100px', cursor: 'pointer', transition: '0.3s', overflow: 'hidden', position: 'relative' }}>
                 <h4 style={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem' }}>{cat}</h4>
               </div>

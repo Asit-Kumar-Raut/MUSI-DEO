@@ -3,10 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Mic, MicOff, Send, X, Bot, MessageSquare, Volume2, Sparkles, Wand2 } from 'lucide-react';
 import axios from 'axios';
 import { usePlayer } from '../context/PlayerContext';
+import { useAuth } from '../context/AuthContext';
 
 const API = 'https://musi-deo.vercel.app/api';
 
 const AIAssistant = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -23,6 +25,8 @@ const AIAssistant = () => {
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
 
+  // Hooks are all declared above
+
   const formatSong = (s) => ({
     id: `saavn-${s.id}`,
     title: s.name,
@@ -37,7 +41,8 @@ const AIAssistant = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'hi-IN';
+      utterance.lang = 'hi-IN'; // Supporting Hindi/English mixed
+      utterance.pitch = 1.1;
       utterance.rate = 1.0;
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
@@ -48,7 +53,7 @@ const AIAssistant = () => {
 
   const addMessageAndSpeak = (text, sender) => {
     setMessages(prev => [...prev, { text, sender, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
-    if (sender === 'ai') speak(text);
+    speak(text); // Speak everything for a more interactive experience
   };
 
   useEffect(() => {
@@ -140,27 +145,88 @@ const AIAssistant = () => {
   const handleMouseMove = useCallback((e) => { if (!isDragging) return; setHasMoved(true); setPosition({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y }); }, [isDragging, dragOffset]);
   const handleMouseUp = useCallback(() => setIsDragging(false), []);
 
+  const handleTouchStart = useCallback((e) => {
+    setIsDragging(true);
+    setHasMoved(false);
+    const touch = e.touches[0];
+    setDragOffset({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+  }, [position]);
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging) return;
+    setHasMoved(true);
+    const touch = e.touches[0];
+    setPosition({ x: touch.clientX - dragOffset.x, y: touch.clientY - dragOffset.y });
+  }, [isDragging, dragOffset]);
+
+  const handleTouchEnd = useCallback(() => setIsDragging(false), []);
+
   useEffect(() => {
-    if (isDragging) { window.addEventListener('mousemove', handleMouseMove); window.addEventListener('mouseup', handleMouseUp); }
-    return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', handleTouchEnd);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  if (!user || user.isGuest) return null;
+
   return (
-    <div style={{ position: 'fixed', left: position.x, top: position.y, zIndex: 3000, userSelect: 'none' }}>
+    <div style={{ position: 'fixed', left: position.x, top: position.y, zIndex: 3000, userSelect: 'none', transition: isDragging ? 'none' : 'transform 0.1s ease' }}>
       <style>{`
-        @keyframes asig-glow { 0% { border-color: #1db954; box-shadow: 0 0 10px rgba(29,185,84,0.3); } 50% { border-color: #19e68c; box-shadow: 0 0 25px rgba(29,185,84,0.6); } 100% { border-color: #1db954; box-shadow: 0 0 10px rgba(29,185,84,0.3); } }
-        .asig-avatar { width: 75px; height: 75px; border-radius: 50%; border: 3px solid #1db954; cursor: grab; object-fit: cover; box-shadow: 0 10px 40px rgba(0,0,0,0.6); transition: 0.3s; background: #000; }
+        @keyframes asig-glow { 
+          0% { border-color: #1db954; box-shadow: 0 0 10px rgba(29,185,84,0.3); transform: scale(1); } 
+          50% { border-color: #19e68c; box-shadow: 0 0 25px rgba(29,185,84,0.6); transform: scale(1.05); } 
+          100% { border-color: #1db954; box-shadow: 0 0 10px rgba(29,185,84,0.3); transform: scale(1); } 
+        }
+        @keyframes asig-float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes asig-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.7); }
+          70% { box-shadow: 0 0 0 15px rgba(29, 185, 84, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(29, 185, 84, 0); }
+        }
+        .asig-container {
+          animation: asig-float 3s ease-in-out infinite;
+          cursor: grab;
+          transition: 0.3s;
+        }
+        .asig-container:active { cursor: grabbing; transform: scale(0.9) !important; }
+        .asig-avatar { 
+          width: 75px; 
+          height: 75px; 
+          border-radius: 50%; 
+          border: 3px solid #1db954; 
+          object-fit: cover; 
+          box-shadow: 0 10px 40px rgba(0,0,0,0.6); 
+          transition: 0.3s; 
+          background: #000;
+        }
         .asig-speaking { animation: asig-glow 0.8s infinite; border-width: 4px; }
         .asig-listening { animation: asig-glow 1.5s infinite; border-color: #ff4444 !important; }
+        .asig-idle { animation: asig-pulse 2s infinite; }
       `}</style>
 
-      <div style={{ position: 'relative' }}>
-        <img src="/media/ai_poto.png" alt="Asig" onMouseDown={handleMouseDown} onClick={() => !hasMoved && setIsOpen(!isOpen)}
-          className={`asig-avatar ${isSpeaking ? 'asig-speaking' : ''} ${isListening ? 'asig-listening' : ''}`}
+      <div className="asig-container" style={{ position: 'relative' }}>
+        <img src="/media/ai_poto.png" alt="Asig" 
+          onMouseDown={handleMouseDown} 
+          onTouchStart={handleTouchStart}
+          onClick={() => !hasMoved && setIsOpen(!isOpen)}
+          className={`asig-avatar ${isSpeaking ? 'asig-speaking' : isListening ? 'asig-listening' : 'asig-idle'}`}
           onError={(e) => e.target.src = 'https://cdn-icons-png.flaticon.com/512/4712/4712035.png'} />
       </div>
 

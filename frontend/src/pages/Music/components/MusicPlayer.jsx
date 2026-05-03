@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, Download, Share2 } from 'lucide-react';
 import { usePlayer } from '../../../context/PlayerContext';
 
 const MusicPlayer = () => {
@@ -9,6 +9,31 @@ const MusicPlayer = () => {
     const bar = e.currentTarget;
     const rect = bar.getBoundingClientRect();
     seekTo(((e.clientX - rect.left) / rect.width) * 100);
+  };
+
+  const handleDownload = () => {
+    if (!currentSong?.audio) return;
+    const link = document.createElement('a');
+    link.href = currentSong.audio;
+    link.download = `${currentSong.title}.mp3`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleShare = () => {
+    if (!currentSong) return;
+    const shareUrl = window.location.origin + `/music?play=${currentSong.id}`;
+    if (navigator.share) {
+      navigator.share({
+        title: currentSong.title,
+        text: `Check out this song: ${currentSong.title} by ${currentSong.artist} on MUSI-DEO`,
+        url: shareUrl
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      alert("Share link copied to clipboard!");
+    }
   };
 
   return (
@@ -23,6 +48,10 @@ const MusicPlayer = () => {
             <div style={{ minWidth: 0 }}>
               <div style={{ color: '#fff', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{currentSong.title}</div>
               <div style={{ color: '#b3b3b3', fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{currentSong.artist}</div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', marginLeft: '10px' }}>
+              <button onClick={handleDownload} title="Download" style={{ background: 'none', border: 'none', color: '#b3b3b3', cursor: 'pointer', padding: '4px' }}><Download size={16} /></button>
+              <button onClick={handleShare} title="Share" style={{ background: 'none', border: 'none', color: '#b3b3b3', cursor: 'pointer', padding: '4px' }}><Share2 size={16} /></button>
             </div>
           </>
         ) : <div style={{ color: '#666', fontSize: '13px' }}>No song playing</div>}

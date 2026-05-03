@@ -1,10 +1,20 @@
 import React from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Search as SearchIcon, ArrowLeft, Play, ExternalLink, TrendingUp } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const VideoSearch = () => {
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const q = searchParams.get('q') || '';
+
+  const handleGuest = (e) => {
+    if (user?.isGuest) {
+      e.preventDefault();
+      alert("To enjoy global video search and premium content, please Login first! Guest account only supports Local Library.");
+      return;
+    }
+  };
   
   // Recommended search results
   const recommendations = [
@@ -51,6 +61,7 @@ const VideoSearch = () => {
               </div>
             </div>
             <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`} target="_blank" rel="noreferrer" 
+              onClick={handleGuest}
               style={{ background: '#fff', color: '#000', padding: '12px 24px', borderRadius: '30px', fontWeight: 800, textDecoration: 'none', fontSize: '14px', transition: '0.2s' }}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
@@ -61,7 +72,7 @@ const VideoSearch = () => {
 
         {/* Recommended Result Cards */}
         {recommendations.map(video => (
-          <Link to={`/video/watch/yt-${video.id}`} key={video.id} style={{ textDecoration: 'none', color: '#fff' }}>
+          <Link to={`/video/watch/yt-${video.id}`} key={video.id} onClick={handleGuest} style={{ textDecoration: 'none', color: '#fff' }}>
             <div className="search-card" style={{ background: '#181818', borderRadius: '16px', padding: '16px', height: '100%', transition: '0.3s', border: '1px solid transparent' }}>
               <div style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', background: '#000', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
                 <img src={`https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const PendingUser = require('../models/PendingUser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -27,6 +28,8 @@ transporter.verify(function (error, success) {
 const sendOTPEmail = async (email, otp, type = 'register') => {
     let subject, htmlContent;
     
+    const spamNote = `<p style="font-size: 13px; color: #facc15; margin-top: 20px; font-weight: bold;">⚠️ If you don't see this email in your inbox, please check your SPAM or JUNK folder and mark it as "Not Spam".</p>`;
+
     if (type === 'register') {
         subject = 'Welcome to MUSI-DEO - Verify Your Account';
         htmlContent = `
@@ -37,6 +40,7 @@ const sendOTPEmail = async (email, otp, type = 'register') => {
                 <div style="background-color: #1e293b; display: inline-block; padding: 15px 30px; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #38bdf8;">
                     ${otp}
                 </div>
+                ${spamNote}
                 <p style="font-size: 14px; color: #94a3b8; margin-top: 30px;">This OTP will expire in 10 minutes.</p>
                 <p style="font-size: 14px; color: #94a3b8;">If you did not request this, please ignore this email.</p>
                 <hr style="border-color: #334155; margin-top: 40px;" />
@@ -53,6 +57,7 @@ const sendOTPEmail = async (email, otp, type = 'register') => {
                 <div style="background-color: #1e293b; display: inline-block; padding: 15px 30px; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #ef4444;">
                     ${otp}
                 </div>
+                ${spamNote}
                 <p style="font-size: 14px; color: #94a3b8; margin-top: 30px;">This OTP will expire in 10 minutes.</p>
                 <p style="font-size: 14px; color: #94a3b8;">If you did not request a password reset, please change your password immediately or ignore this email.</p>
             </div>
@@ -79,17 +84,21 @@ exports.register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
         
-        let user = await User.findOne({ $or: [{ email }, { username }] });
-        if (user) {
-            if (user.email === email) return res.status(400).json({ message: 'Email already exists' });
-            if (user.username === username) return res.status(400).json({ message: 'Username already taken' });
+        // Check if user already exists in verified collection
+        let existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) {
+            if (existingUser.email === email) return res.status(400).json({ message: 'Email already registered and verified.' });
+            if (existingUser.username === username) return res.status(400).json({ message: 'Username already taken.' });
         }
+
+        // Remove any existing pending registration for this email/username
+        await PendingUser.deleteMany({ $or: [{ email }, { username }] });
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const otp = generateOTP();
         const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-        user = new User({
+        const pendingUser = new PendingUser({
             username,
             email,
             password: hashedPassword,
@@ -97,19 +106,19 @@ exports.register = async (req, res) => {
             otpExpires
         });
 
-        await user.save();
+        await pendingUser.save();
         
         try {
             const emailSent = await sendOTPEmail(email, otp, 'register');
             if (!emailSent) {
-                return res.status(500).json({ message: 'Email service error. Try OTP 123456 for testing.' });
+                return res.status(500).json({ message: 'Email service error. Please try again later.' });
             }
         } catch (mailErr) {
             console.error("Mail Catch Error:", mailErr);
-            return res.status(500).json({ message: 'Mail server unreachable. Try OTP 123456 for testing.' });
+            return res.status(500).json({ message: 'Mail server unreachable. Please try again later.' });
         }
 
-        res.status(201).json({ message: 'User registered. Please check your email for OTP.', email });
+        res.status(201).json({ message: 'Verification OTP sent. Please check your email (including spam folder).', email });
 
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -120,27 +129,33 @@ exports.verifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
         
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'User not found' });
+        const pendingUser = await PendingUser.findOne({ email });
+        if (!pendingUser) return res.status(400).json({ message: 'No pending registration found for this email.' });
         
-        if (user.isVerified) return res.status(400).json({ message: 'User is already verified' });
-        
-        if (otp !== '123456' && (user.otp !== otp || user.otpExpires < Date.now())) {
-            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        if (pendingUser.otp !== otp || pendingUser.otpExpires < Date.now()) {
+            return res.status(400).json({ message: 'Invalid or expired OTP.' });
         }
         
-        user.isVerified = true;
-        user.otp = undefined;
-        user.otpExpires = undefined;
-        await user.save();
+        // Move to User collection
+        const newUser = new User({
+            username: pendingUser.username,
+            email: pendingUser.email,
+            password: pendingUser.password,
+            isVerified: true
+        });
+        
+        await newUser.save();
+        
+        // Delete pending data
+        await PendingUser.deleteOne({ email });
         
         // Send Welcome Email
         const welcomeContent = `
             <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 40px; text-align: center; border-radius: 12px;">
                 <h1 style="color: #22c55e; margin-bottom: 10px;">MUSI-DEO</h1>
-                <h2 style="color: #e2e8f0;">Thank You for Joining Us!</h2>
+                <h2 style="color: #e2e8f0;">Thank You for Joining Us! ${pendingUser.username}</h2>
                 <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 30px;">Your account has been successfully verified. Dive into the world of limitless music and videos!</p>
-                <a href="http://localhost:5173/login" style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Login Now</a>
+                <a href="https://musi-deo.vercel.app/login" style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Login Now</a>
             </div>
         `;
         await transporter.sendMail({
@@ -150,7 +165,7 @@ exports.verifyOTP = async (req, res) => {
             html: welcomeContent
         });
 
-        res.status(200).json({ message: 'Account verified successfully' });
+        res.status(200).json({ message: 'Account verified successfully. You can now login.' });
 
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -218,5 +233,35 @@ exports.resetPassword = async (req, res) => {
         
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+exports.contact = async (req, res) => {
+    try {
+        const { name, email, message, feedbackType } = req.body;
+        
+        const mailOptions = {
+            from: `"MUSI-DEO Support" <${process.env.EMAIL_USER}>`,
+            to: process.env.EMAIL_USER, // Send to site owner
+            subject: `Contact/Feedback: ${feedbackType || 'General'} from ${name}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 30px; border-radius: 10px;">
+                    <h2 style="color: #22c55e;">New Feedback Received</h2>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Type:</strong> ${feedbackType || 'General'}</p>
+                    <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <p style="color: #cbd5e1;">${message}</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: 'Message sent successfully. Thank you for your feedback!' });
+        
+    } catch (error) {
+        console.error("Contact Email Error:", error);
+        res.status(500).json({ message: 'Failed to send message. Please try again later.' });
     }
 };
