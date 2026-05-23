@@ -245,6 +245,36 @@ app.get('/api/music/lyrics', async (req, res) => {
   }
 });
 
+// DOWNLOAD PROXY ENDPOINT FOR SAME-ORIGIN DIRECT BROWSER DOWNLOADS
+app.get('/api/music/download', async (req, res) => {
+  console.log("HIT: /api/music/download");
+  try {
+    const audioUrl = req.query.url;
+    const songName = req.query.name || 'song';
+    if (!audioUrl) {
+      return res.status(400).json({ error: "url is required" });
+    }
+    
+    // Clean non-safe characters for headers
+    const cleanName = songName.replace(/[^a-zA-Z0-9\s-_]/g, '');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(cleanName)}.mp3"`);
+    res.setHeader('Content-Type', 'audio/mpeg');
+    
+    // Fetch and send buffer
+    const response = await fetch(audioUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch audio stream: ${response.status}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    res.send(Buffer.from(arrayBuffer));
+  } catch (err) {
+    console.error("[DOWNLOAD ERROR]", err.message);
+    res.status(500).json({ error: "Download failed" });
+  }
+});
+
+
 // Auth Routes
 app.use('/api/auth', authRoutes);
 

@@ -72,9 +72,16 @@ const FullScreenPlayer = ({ isOpen, onClose, API }) => {
 
   const handleDownload = () => {
     if (!currentSong?.audio) return;
+    
+    // If it's a local/same-origin song, download directly, otherwise use the backend proxy
+    const isExternal = currentSong.audio.startsWith('http://') || currentSong.audio.startsWith('https://');
+    const downloadUrl = isExternal
+      ? `${API}/music/download?url=${encodeURIComponent(currentSong.audio)}&name=${encodeURIComponent(currentSong.title)}`
+      : currentSong.audio;
+
     const link = document.createElement('a');
-    link.href = currentSong.audio;
-    link.download = `${currentSong.title}.mp3`;
+    link.href = downloadUrl;
+    link.setAttribute('download', `${currentSong.title}.mp3`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
