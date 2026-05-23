@@ -249,20 +249,33 @@ app.get('/api/music/lyrics', async (req, res) => {
 app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
+  let dbStatus = "Disconnected";
+  const state = mongoose.connection.readyState;
+  if (state === 1) dbStatus = "Connected";
+  else if (state === 2) dbStatus = "Connecting...";
+  else if (state === 3) dbStatus = "Disconnecting...";
+
   res.json({ 
     status: "ok", 
     port: PORT, 
     database: dbStatus,
-    message: "MUSI-DEO API v2" 
+    dbStateCode: state,
+    message: "MUSI-DEO API v3",
+    note: "MongoDB connects asynchronously. If status is 'Connecting...', please refresh in a few seconds."
   });
 });
 
 // MongoDB Connection
 const uri = process.env.MONGODB_URI || "mongodb+srv://asitraut2006_db_user:0CpGUoNn0hMnd8d3@cluster0.ehruu5p.mongodb.net/musideo?retryWrites=true&w=majority&appName=Cluster0";
+
+// Mongoose Connection Event Listeners for real-time console feedback
+mongoose.connection.on('connected', () => console.log("✅ Mongoose status: Connected to MongoDB"));
+mongoose.connection.on('error', (err) => console.error("❌ Mongoose status: Connection error:", err.message));
+mongoose.connection.on('disconnected', () => console.log("⚠️ Mongoose status: Disconnected from MongoDB"));
+
 mongoose.connect(uri)
   .then(() => console.log("✅ Database Connected on 5001"))
-  .catch(err => console.error("❌ Database Error:", err.message));
+  .catch(err => console.error("❌ Database Error during initial connect:", err.message));
 
 app.listen(PORT, () => {
   console.log(`\n----------------------------------`);
