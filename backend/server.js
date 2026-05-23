@@ -59,6 +59,39 @@ async function getItunesMusic(query) {
   }
 }
 
+const parseDuration = (dStr) => {
+  if (!dStr) return 180;
+  const parts = dStr.split(':').map(Number);
+  if (parts.length === 2) {
+    return parts[0] * 60 + parts[1];
+  } else if (parts.length === 3) {
+    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  }
+  return parseInt(dStr) || 180;
+};
+
+const mapJioSaavnSong = (s) => {
+  const mediaUrl = s.media_urls?.["320_KBPS"] || s.media_urls?.["160_KBPS"] || s.media_url || s.media_urls?.["96_KBPS"] || '';
+  return {
+    id: s.id,
+    name: s.song,
+    primaryArtists: s.singers || s.primary_artists || 'Various Artists',
+    image: [
+      { link: s.images?.["50x50"] || s.image },
+      { link: s.images?.["150x150"] || s.image },
+      { link: s.images?.["500x500"] || s.image }
+    ],
+    downloadUrl: [
+      { link: mediaUrl },
+      { link: mediaUrl },
+      { link: mediaUrl },
+      { link: mediaUrl },
+      { link: mediaUrl }
+    ],
+    duration: parseDuration(s.duration)
+  };
+};
+
 async function getMusicTrending() {
   try {
     console.log("[MUSIC] Trying JioSaavn API for trending hits...");
@@ -66,29 +99,33 @@ async function getMusicTrending() {
     if (res.status === 200) {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
-        return {
-          status: 'SUCCESS',
-          data: {
-            results: data.results.map(s => ({
-              id: s.id,
-              name: s.title,
-              primaryArtists: s.more_info?.singers || s.description?.split(' · ')[1] || 'Various Artists',
-              image: [
-                { link: s.images?.["50x50"] || s.image },
-                { link: s.images?.["150x150"] || s.image },
-                { link: s.images?.["500x500"] || s.image }
-              ],
-              downloadUrl: [
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' }
-              ],
-              duration: 180
-            })).filter(s => s.downloadUrl[0].link)
-          }
-        };
+        // Fetch top 15 in parallel for full song streams
+        console.log("[MUSIC] Fetching full details for top 15 trending songs...");
+        const detailedResults = await Promise.all(
+          data.results.slice(0, 15).map(async (s) => {
+            try {
+              const detailRes = await fetch(`https://jiosaavn-api.vercel.app/song?id=${s.id}`);
+              if (detailRes.status === 200) {
+                return await detailRes.json();
+              }
+            } catch (err) {
+              console.error(`Failed to fetch details for ${s.id}:`, err.message);
+            }
+            return null;
+          })
+        );
+        
+        const mapped = detailedResults
+          .filter(Boolean)
+          .map(mapJioSaavnSong)
+          .filter(s => s.downloadUrl[0].link);
+          
+        if (mapped.length > 0) {
+          return {
+            status: 'SUCCESS',
+            data: { results: mapped }
+          };
+        }
       }
     }
     throw new Error(`JioSaavn returned status ${res.status}`);
@@ -106,29 +143,33 @@ async function searchMusic(query) {
     if (res.status === 200) {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
-        return {
-          status: 'SUCCESS',
-          data: {
-            results: data.results.map(s => ({
-              id: s.id,
-              name: s.title,
-              primaryArtists: s.more_info?.singers || s.description?.split(' · ')[1] || 'Various Artists',
-              image: [
-                { link: s.images?.["50x50"] || s.image },
-                { link: s.images?.["150x150"] || s.image },
-                { link: s.images?.["500x500"] || s.image }
-              ],
-              downloadUrl: [
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' },
-                { link: s.more_info?.vlink || '' }
-              ],
-              duration: 180
-            })).filter(s => s.downloadUrl[0].link)
-          }
-        };
+        // Fetch top 15 in parallel for full song streams
+        console.log(`[MUSIC] Fetching full details for top 15 search results...`);
+        const detailedResults = await Promise.all(
+          data.results.slice(0, 15).map(async (s) => {
+            try {
+              const detailRes = await fetch(`https://jiosaavn-api.vercel.app/song?id=${s.id}`);
+              if (detailRes.status === 200) {
+                return await detailRes.json();
+              }
+            } catch (err) {
+              console.error(`Failed to fetch details for ${s.id}:`, err.message);
+            }
+            return null;
+          })
+        );
+        
+        const mapped = detailedResults
+          .filter(Boolean)
+          .map(mapJioSaavnSong)
+          .filter(s => s.downloadUrl[0].link);
+          
+        if (mapped.length > 0) {
+          return {
+            status: 'SUCCESS',
+            data: { results: mapped }
+          };
+        }
       }
     }
     throw new Error(`JioSaavn returned status ${res.status}`);
