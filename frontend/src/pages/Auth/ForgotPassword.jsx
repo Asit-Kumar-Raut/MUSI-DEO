@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5001/api' 
+  : 'https://musi-deo.vercel.app/api';
+
 const inputStyle = { width: '100%', padding: '14px 16px', background: '#242424', border: '1px solid transparent', borderRadius: '8px', color: '#fff', fontSize: '1rem', outline: 'none' };
 
 const ForgotPassword = () => {
@@ -18,7 +22,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setError(''); setMessage(''); setLoading(true);
     try {
-      const res = await axios.post('https://musi-deo.vercel.app/api/auth/forgot-password', { email });
+      const res = await axios.post(`${API}/auth/forgot-password`, { email });
       setMessage(res.data.message); setStep(2);
     } catch (err) { setError(err.response?.data?.message || 'Failed to send OTP'); }
     finally { setLoading(false); }
@@ -28,7 +32,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      await axios.post('https://musi-deo.vercel.app/api/auth/reset-password', { email, otp, newPassword });
+      await axios.post(`${API}/auth/reset-password`, { email, otp, newPassword });
       setMessage('Password reset successful! Redirecting...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) { setError(err.response?.data?.message || 'Failed to reset password'); }

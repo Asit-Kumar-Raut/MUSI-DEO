@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5001/api' 
+  : 'https://musi-deo.vercel.app/api';
+
 const VerifyOTP = () => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
@@ -16,7 +20,7 @@ const VerifyOTP = () => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      await axios.post('https://musi-deo.vercel.app/api/auth/verify-otp', { email, otp });
+      await axios.post(`${API}/auth/verify-otp`, { email, otp });
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Verification failed');

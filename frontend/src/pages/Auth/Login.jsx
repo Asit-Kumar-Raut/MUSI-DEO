@@ -3,6 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5001/api' 
+  : 'https://musi-deo.vercel.app/api';
+
 const inputStyle = { width: '100%', padding: '14px 16px', background: '#242424', border: '1px solid transparent', borderRadius: '8px', color: '#fff', fontSize: '1rem', outline: 'none', transition: '0.2s ease' };
 
 const Login = () => {
@@ -22,7 +26,7 @@ const Login = () => {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      const res = await axios.post('https://musi-deo.vercel.app/api/auth/login', { email, password });
+      const res = await axios.post(`${API}/auth/login`, { email, password });
       login(res.data.user, res.data.token);
       navigate('/');
     } catch (err) {

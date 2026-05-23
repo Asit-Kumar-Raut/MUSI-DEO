@@ -6,7 +6,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'https://musi-deo.vercel.app/api';
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5001/api' 
+  : 'https://musi-deo.vercel.app/api';
 const categoryColors = ['#27856a', '#8400e7', '#1e3264', '#e8115b', '#148a08', '#bc5900', '#e91429', '#e1118c', '#503750', '#477d95', '#ba5d07', '#0d73ec'];
 const categories = ['Hindi', 'Odia', 'Bengali', 'English', 'Punjabi', 'Tamil', 'Telugu', 'Bhojpuri', 'Romantic', 'Sad Songs', 'Party', 'Devotional'];
 

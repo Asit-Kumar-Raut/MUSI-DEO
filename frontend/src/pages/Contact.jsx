@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Mail, MessageSquare, Send, User, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5001/api' 
+  : 'https://musi-deo.vercel.app/api';
+
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '', feedbackType: 'Support' });
   const [status, setStatus] = useState({ loading: false, success: false, error: '' });
@@ -10,7 +14,7 @@ const Contact = () => {
     e.preventDefault();
     setStatus({ loading: true, success: false, error: '' });
     try {
-      await axios.post('https://musi-deo.vercel.app/api/auth/contact', formData);
+      await axios.post(`${API}/auth/contact`, formData);
       setStatus({ loading: false, success: true, error: '' });
       setFormData({ name: '', email: '', message: '', feedbackType: 'Support' });
     } catch (err) {

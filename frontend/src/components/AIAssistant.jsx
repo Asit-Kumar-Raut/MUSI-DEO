@@ -5,7 +5,9 @@ import axios from 'axios';
 import { usePlayer } from '../context/PlayerContext';
 import { useAuth } from '../context/AuthContext';
 
-const API = 'https://musi-deo.vercel.app/api';
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5001/api' 
+  : 'https://musi-deo.vercel.app/api';
 
 const AIAssistant = () => {
   const { user } = useAuth();

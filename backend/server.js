@@ -17,29 +17,166 @@ app.use((req, res, next) => {
   next();
 });
 
-// MUSIC API (DIRECTLY AT TOP)
+// HELPERS FOR DUAL-SOURCE MUSIC STREAMING
+async function getItunesMusic(query) {
+  try {
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=30`);
+    const data = await res.json();
+    const results = (data.results || []).map(track => {
+      const highResImage = track.artworkUrl100 ? track.artworkUrl100.replace('100x100bb', '500x500bb') : '/media/sujal.jpg';
+      const durationSec = track.trackTimeMillis ? Math.floor(track.trackTimeMillis / 1000) : 180;
+      return {
+        id: track.trackId.toString(),
+        name: track.trackName,
+        primaryArtists: track.artistName,
+        image: [
+          { link: track.artworkUrl30 || highResImage },
+          { link: track.artworkUrl60 || highResImage },
+          { link: highResImage }
+        ],
+        downloadUrl: [
+          { link: track.previewUrl || '' },
+          { link: track.previewUrl || '' },
+          { link: track.previewUrl || '' },
+          { link: track.previewUrl || '' },
+          { link: track.previewUrl || '' }
+        ],
+        duration: durationSec
+      };
+    }).filter(s => s.downloadUrl[0].link);
+    
+    return {
+      status: 'SUCCESS',
+      data: { results }
+    };
+  } catch (err) {
+    console.error("[MUSIC] iTunes Search API failed:", err.message);
+    return {
+      status: 'ERROR',
+      message: err.message,
+      data: { results: [] }
+    };
+  }
+}
+
+async function getMusicTrending() {
+  try {
+    console.log("[MUSIC] Trying JioSaavn API for trending hits...");
+    const res = await fetch('https://jiosaavn-api.vercel.app/search?query=latest bollywood');
+    if (res.status === 200) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        return {
+          status: 'SUCCESS',
+          data: {
+            results: data.results.map(s => ({
+              id: s.id,
+              name: s.title,
+              primaryArtists: s.more_info?.singers || s.description?.split(' · ')[1] || 'Various Artists',
+              image: [
+                { link: s.images?.["50x50"] || s.image },
+                { link: s.images?.["150x150"] || s.image },
+                { link: s.images?.["500x500"] || s.image }
+              ],
+              downloadUrl: [
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' }
+              ],
+              duration: 180
+            })).filter(s => s.downloadUrl[0].link)
+          }
+        };
+      }
+    }
+    throw new Error(`JioSaavn returned status ${res.status}`);
+  } catch (err) {
+    console.error("[MUSIC] JioSaavn Trending failed:", err.message);
+    console.log("[MUSIC] Falling back to iTunes Search API...");
+    return await getItunesMusic('latest bollywood');
+  }
+}
+
+async function searchMusic(query) {
+  try {
+    console.log(`[MUSIC] Trying JioSaavn API for search: "${query}"...`);
+    const res = await fetch(`https://jiosaavn-api.vercel.app/search?query=${encodeURIComponent(query)}`);
+    if (res.status === 200) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        return {
+          status: 'SUCCESS',
+          data: {
+            results: data.results.map(s => ({
+              id: s.id,
+              name: s.title,
+              primaryArtists: s.more_info?.singers || s.description?.split(' · ')[1] || 'Various Artists',
+              image: [
+                { link: s.images?.["50x50"] || s.image },
+                { link: s.images?.["150x150"] || s.image },
+                { link: s.images?.["500x500"] || s.image }
+              ],
+              downloadUrl: [
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' },
+                { link: s.more_info?.vlink || '' }
+              ],
+              duration: 180
+            })).filter(s => s.downloadUrl[0].link)
+          }
+        };
+      }
+    }
+    throw new Error(`JioSaavn returned status ${res.status}`);
+  } catch (err) {
+    console.error(`[MUSIC] JioSaavn search failed for "${query}":`, err.message);
+    console.log("[MUSIC] Falling back to iTunes Search API...");
+    return await getItunesMusic(query);
+  }
+}
+
+// MUSIC API ENDPOINTS
 app.get('/api/music/trending', async (req, res) => {
   console.log("HIT: /api/music/trending");
-  try {
-    const SAAVN_API = 'https://jiosaavn-api-privatecvc2.vercel.app';
-    const response = await fetch(`${SAAVN_API}/search/songs?query=latest bollywood&limit=50`);
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const data = await getMusicTrending();
+  res.json(data);
 });
 
 app.get('/api/music/search', async (req, res) => {
   console.log("HIT: /api/music/search");
+  const q = req.query.q || 'arijit';
+  const data = await searchMusic(q);
+  res.json(data);
+});
+
+// LYRICS ENDPOINT
+app.get('/api/music/lyrics', async (req, res) => {
+  console.log("HIT: /api/music/lyrics");
   try {
-    const q = req.query.q || 'arijit';
-    const SAAVN_API = 'https://jiosaavn-api-privatecvc2.vercel.app';
-    const response = await fetch(`${SAAVN_API}/search/songs?query=${encodeURIComponent(q)}&limit=30`);
-    const data = await response.json();
-    res.json(data);
+    const songId = req.query.songId;
+    if (!songId) {
+      return res.status(400).json({ error: "songId is required" });
+    }
+    
+    // Split key if it has a prefix like "saavn-"
+    const cleanId = songId.startsWith('saavn-') ? songId.replace('saavn-', '') : songId;
+    
+    console.log(`[MUSIC] Fetching lyrics for song ID: ${cleanId}`);
+    const lyricsRes = await fetch(`https://jiosaavn-api.vercel.app/lyrics?id=${cleanId}`);
+    if (lyricsRes.status === 200) {
+      const data = await lyricsRes.json();
+      if (data.status && data.lyrics) {
+        return res.json({ lyrics: data.lyrics });
+      }
+    }
+    res.json({ lyrics: null });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("[MUSIC] Lyrics fetch error:", err.message);
+    res.json({ lyrics: null });
   }
 });
 
