@@ -147,7 +147,7 @@ const MusicHome = () => {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-            {trending.slice(0, 15).map((song) => {
+            {trending.map((song) => {
               const active = currentSong?.id === song.id;
               return (
                 <div key={song.id} onClick={() => handleGlobalAction(() => playSong(song, trending))}
