@@ -35,6 +35,9 @@ const getFriendlyErrorMessage = (err) => {
   if (code.includes('network-request-failed')) {
     return 'Network connection lost. Please verify your internet connection and try again.';
   }
+  if (code.includes('popup-blocked')) {
+    return '🚫 Sign-in popup was blocked by your browser. Please enable popups for this site in your browser settings (look at the right side of the address bar) and try again.';
+  }
   
   const rawMsg = err.message ? err.message.replace('Firebase: ', '') : '';
   return rawMsg || 'Authentication failed. Please try again.';
@@ -69,13 +72,13 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setError('');
-    setLoading(true);
     try {
+      // Trigger login immediately so the browser recognizes it as a direct user action
       await signInWithGoogle();
+      setLoading(true);
       navigate('/');
     } catch (err) {
       setError(getFriendlyErrorMessage(err));
-    } finally {
       setLoading(false);
     }
   };
