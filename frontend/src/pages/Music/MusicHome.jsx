@@ -4,28 +4,16 @@ import { usePlayer } from '../../context/PlayerContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { allSongs } from '../../data/mediaData';
+import { allSongs, FAMOUS_SINGERS as RAW_FAMOUS_SINGERS } from '../../data/mediaData';
 
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5001/api' 
   : 'https://musi-deo.vercel.app/api';
 
-const FAMOUS_SINGERS = [
-  { name: 'Arijit Singh', img: 'https://c.saavncdn.com/artists/Arijit_Singh_002_20230323072147_150x150.jpg', genre: 'Romantic' },
-  { name: 'Darshan Raval', img: 'https://c.saavncdn.com/artists/Darshan_Raval_003_20231109085121_150x150.jpg', genre: 'Pop' },
-  { name: 'Jubin Nautiyal', img: 'https://c.saavncdn.com/artists/Jubin_Nautiyal_005_20230612140417_150x150.jpg', genre: 'Melody' },
-  { name: 'Yo Yo Honey Singh', img: 'https://c.saavncdn.com/artists/Yo_Yo_Honey_Singh_002_20221216102650_150x150.jpg', genre: 'Rap' },
-  { name: 'Badshah', img: 'https://c.saavncdn.com/artists/Badshah_005_20230913075253_150x150.jpg', genre: 'Hip Hop' },
-  { name: 'Emiway Bantai', img: 'https://c.saavncdn.com/artists/Emiway_Bantai_002_20221021102924_150x150.jpg', genre: 'Underground' },
-  { name: 'Shreya Ghoshal', img: 'https://c.saavncdn.com/artists/Shreya_Ghoshal_003_20230612140618_150x150.jpg', genre: 'Classical' },
-  { name: 'Atif Aslam', img: 'https://c.saavncdn.com/artists/Atif_Aslam_004_20230612141019_150x150.jpg', genre: 'Sufi' },
-  { name: 'Neha Kakkar', img: 'https://c.saavncdn.com/artists/Neha_Kakkar_006_20230612140306_150x150.jpg', genre: 'Dance' },
-  { name: 'KK', img: 'https://c.saavncdn.com/artists/K_K__002_20220601095204_150x150.jpg', genre: 'Soul' },
-  { name: 'Sonu Nigam', img: 'https://c.saavncdn.com/artists/Sonu_Nigam_004_20230612140810_150x150.jpg', genre: 'Legend' },
-  { name: 'Kumar Sanu', img: 'https://c.saavncdn.com/artists/Kumar_Sanu_004_20230612140938_150x150.jpg', genre: '90s Hits' },
-  { name: 'Humane Sagar', img: 'https://c.saavncdn.com/artists/Humane_Sagar_150x150.jpg', genre: 'Odia King' },
-  { name: 'Mantu Chhuria', img: 'https://c.saavncdn.com/artists/Mantu_Chhuria_150x150.jpg', genre: 'Odia Folk' },
-];
+const FAMOUS_SINGERS = RAW_FAMOUS_SINGERS.map(s => ({
+  ...s,
+  img: s.img.replace('500x500', '150x150')
+}));
 
 const formatSong = (s) => ({
   id: `saavn-${s.id}`,

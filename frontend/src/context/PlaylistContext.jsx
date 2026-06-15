@@ -61,6 +61,7 @@ export const PlaylistProvider = ({ children }) => {
     } else {
       setPlaylists(prev => [...prev, { id, ...newPlaylist }]);
     }
+    return id;
   };
 
   const addToPlaylist = async (playlistId, song) => {

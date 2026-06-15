@@ -93,6 +93,28 @@ const AppRoutes = () => {
 };
 
 function App() {
+  React.useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      window.deferredPrompt = e;
+      // Notify components that app is installable
+      window.dispatchEvent(new Event('pwa-installable'));
+    };
+
+    const handleAppInstalled = () => {
+      window.deferredPrompt = null;
+      window.dispatchEvent(new Event('pwa-installed'));
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <PlayerProvider>

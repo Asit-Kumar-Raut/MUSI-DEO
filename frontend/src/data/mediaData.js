@@ -20,13 +20,13 @@ export const allSongs = [
 ];
 
 export const allArtists = [
-  { id: 1, name: "Darshan Raval", image: "https://c.saavncdn.com/artists/Darshan_Raval_003_20231109085121_150x150.jpg" },
-  { id: 2, name: "Jubin Nautiyal", image: "https://c.saavncdn.com/artists/Jubin_Nautiyal_005_20230612140417_150x150.jpg" },
-  { id: 3, name: "Arijit Singh", image: "https://c.saavncdn.com/artists/Arijit_Singh_002_20230323072147_150x150.jpg" },
+  { id: 1, name: "Darshan Raval", image: "https://c.saavncdn.com/artists/Darshan_Raval_006_20250807060352_150x150.jpg" },
+  { id: 2, name: "Jubin Nautiyal", image: "https://c.saavncdn.com/artists/Jubin_Nautiyal_003_20231130204020_150x150.jpg" },
+  { id: 3, name: "Arijit Singh", image: "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_150x150.jpg" },
   { id: 4, name: "Yo Yo Honey Singh", image: "https://c.saavncdn.com/artists/Yo_Yo_Honey_Singh_002_20221216102650_150x150.jpg" },
-  { id: 5, name: "Emiway Bantai", image: "https://c.saavncdn.com/artists/Emiway_Bantai_002_20221021102924_150x150.jpg" },
-  { id: 6, name: "Paradox", image: "https://c.saavncdn.com/artists/Paradox_150x150.jpg" },
-  { id: 7, name: "Sujal", image: "https://c.saavncdn.com/artists/Sonu_Nigam_004_20230612140810_150x150.jpg" },
+  { id: 5, name: "Emiway Bantai", image: "https://c.saavncdn.com/artists/Emiway_Bantai_003_20211012085545_150x150.jpg" },
+  { id: 6, name: "Paradox", image: "https://c.saavncdn.com/artists/Paradox_000_20230315143733_150x150.jpg" },
+  { id: 7, name: "Sujal", image: "https://c.saavncdn.com/artists/Sonu_Nigam_150x150.jpg" },
 ];
 
 export const allVideos = [
@@ -42,3 +42,20 @@ export const allVideos = [
 ];
 
 export const categories = ['2024', 'New Released', 'Hindi', 'Telugu', 'Punjabi', 'Tamil', 'Podcast Charts', 'Bhojpuri'];
+
+export const FAMOUS_SINGERS = [
+  { name: 'Arijit Singh', img: 'https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_500x500.jpg', genre: 'Romantic', desc: 'Arijit Singh is an Indian playback singer and music composer. He sings predominantly in Hindi and Bengali, and has been described as one of the most talented singers in India.' },
+  { name: 'Darshan Raval', img: 'https://c.saavncdn.com/artists/Darshan_Raval_006_20250807060352_500x500.jpg', genre: 'Pop', desc: 'Darshan Raval is an Indian singer, songwriter, and composer known for his independent pop hits and soulful romantic melodies.' },
+  { name: 'Jubin Nautiyal', img: 'https://c.saavncdn.com/artists/Jubin_Nautiyal_003_20231130204020_500x500.jpg', genre: 'Melody', desc: 'Jubin Nautiyal is an Indian playback singer and performer, celebrated for his soulful vocals and timeless Bollywood hits.' },
+  { name: 'Yo Yo Honey Singh', img: 'https://c.saavncdn.com/artists/Yo_Yo_Honey_Singh_002_20221216102650_500x500.jpg', genre: 'Rap', desc: 'Yo Yo Honey Singh is an Indian music producer, rapper, singer, songwriter, and actor, known for his high-energy party anthems.' },
+  { name: 'Badshah', img: 'https://c.saavncdn.com/artists/Badshah_006_20241118064015_500x500.jpg', genre: 'Hip Hop', desc: 'Badshah is an Indian rapper, singer, songwriter, and businessman, renowned for his chart-topping pop and rap blockbusters.' },
+  { name: 'Emiway Bantai', img: 'https://c.saavncdn.com/artists/Emiway_Bantai_003_20211012085545_500x500.jpg', genre: 'Underground', desc: 'Emiway Bantai is an independent Indian rapper, singer, songwriter, and dancer, recognized for his explosive underground hip-hop style.' },
+  { name: 'Shreya Ghoshal', img: 'https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_500x500.jpg', genre: 'Classical', desc: "Shreya Ghoshal is one of India's most decorated playback singers, known for her versatility, classical mastery, and sweet tone." },
+  { name: 'Atif Aslam', img: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Atif_Aslam_at_o2_arena_on_22_april_2012.jpg', genre: 'Sufi', desc: "Atif Aslam is a Pakistani playback singer, songwriter, and actor, famous for his vocal belting technique and intense romantic ballads." },
+  { name: 'Neha Kakkar', img: 'https://c.saavncdn.com/artists/Neha_Kakkar_007_20241212115832_500x500.jpg', genre: 'Dance', desc: 'Neha Kakkar is a prominent Indian playback singer known for her powerful pop voice, energetic stage presence, and viral dance numbers.' },
+  { name: 'KK', img: 'https://c.saavncdn.com/artists/KK_500x500.jpg', genre: 'Soul', desc: "Krishnakumar Kunnath (KK) was a legendary Indian playback singer, revered for his emotive, powerful, and iconic rock-ballad voice." },
+  { name: 'Sonu Nigam', img: 'https://c.saavncdn.com/artists/Sonu_Nigam_500x500.jpg', genre: 'Legend', desc: 'Sonu Nigam is a legendary Indian playback singer, composer, and actor, widely regarded as one of the most versatile voices in modern music.' },
+  { name: 'Kumar Sanu', img: 'https://c.saavncdn.com/artists/Kumar_Sanu_500x500.jpg', genre: '90s Hits', desc: 'Kumar Sanu is a legendary Indian playback singer, famous for singing thousands of romantic Bollywood songs throughout the golden 1990s.' },
+  { name: 'Humane Sagar', img: 'https://c.saavncdn.com/artists/Humane_Sagar_002_20240521123429_500x500.jpg', genre: 'Odia King', desc: 'Humane Sagar is a top Odia playback singer, famous for his romantic and sentimental hits in Ollywood cinema.' },
+  { name: 'Mantu Chhuria', img: 'https://c.saavncdn.com/artists/Mantu_Chhuria_001_20240626113037_500x500.jpg', genre: 'Odia Folk', desc: 'Mantu Chhuria is a popular Odia folk and Sambalpuri singer, known for his high-spirited regional hits and dance tracks.' },
+];

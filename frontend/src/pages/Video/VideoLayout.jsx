@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Search, Music, LogOut, Video as VideoIcon, Menu, X, MessageSquare } from 'lucide-react';
+import { Home, Compass, Search, Music, LogOut, Video as VideoIcon, Menu, X, MessageSquare, Download } from 'lucide-react';
 import VideoHome from './VideoHome';
 import VideoWatch from './VideoWatch';
 import VideoSearch from './VideoSearch';
@@ -16,6 +16,44 @@ const SidebarContent = ({ onClose }) => {
     { path: '/video/trending', label: 'Trending', Icon: Compass },
     { path: '/video/contact', label: 'Contact & Feedback', Icon: MessageSquare },
   ];
+
+  const [isIOS, setIsIOS] = useState(false);
+  const [showInstallOption, setShowInstallOption] = useState(false);
+
+  useEffect(() => {
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    setIsIOS(ios);
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    setShowInstallOption((!!window.deferredPrompt || ios) && !isStandalone);
+
+    const handleInstallable = () => setShowInstallOption(true);
+    const handleInstalled = () => setShowInstallOption(false);
+
+    window.addEventListener('pwa-installable', handleInstallable);
+    window.addEventListener('pwa-installed', handleInstalled);
+
+    return () => {
+      window.removeEventListener('pwa-installable', handleInstallable);
+      window.removeEventListener('pwa-installed', handleInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (isIOS) {
+      alert("To install MUSI-DEO on your Apple device:\n\n1. Tap the Share button at the bottom (iPhone) or top (iPad) of Safari.\n2. Scroll down and select 'Add to Home Screen'.\n3. Tap 'Add' to launch MUSI-DEO as a full screen app!");
+      return;
+    }
+
+    const promptEvent = window.deferredPrompt;
+    if (!promptEvent) return;
+
+    promptEvent.prompt();
+    const { outcome } = await promptEvent.userChoice;
+    console.log(`PWA install outcome: ${outcome}`);
+    window.deferredPrompt = null;
+    setShowInstallOption(false);
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#0f0f0f', padding: '16px' }}>
@@ -37,6 +75,11 @@ const SidebarContent = ({ onClose }) => {
       })}
 
       <div style={{ marginTop: '24px', borderTop: '1px solid #272727', paddingTop: '24px' }}>
+        {showInstallOption && (
+          <button onClick={handleInstall} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', background: 'linear-gradient(135deg, #ff0000, #b30000)', border: 'none', padding: '12px', width: '100%', borderRadius: '10px', marginBottom: '16px', boxShadow: '0 4px 12px rgba(255, 0, 0, 0.2)', transition: '0.2s' }}>
+            <Download size={20} /> Install App
+          </button>
+        )}
         <Link to="/music" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px', borderRadius: '10px', fontSize: '15px', fontWeight: 800, color: '#1db954', textDecoration: 'none', background: 'rgba(29,185,84,0.1)' }}>
           <Music size={22} /> Switch to Music
         </Link>

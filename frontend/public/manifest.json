@@ -1,0 +1,17 @@
+{
+  "short_name": "MUSI-DEO",
+  "name": "MUSI-DEO: Dual-Source Music Streamer",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0b0717",
+  "theme_color": "#8b5cf6",
+  "display": "standalone",
+  "orientation": "portrait"
+}
