@@ -1,29 +1,138 @@
-const User = require('../models/User');
-const PendingUser = require('../models/PendingUser');
+const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getApps } = require('firebase-admin/app');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
+
+const localDbPath = path.join(__dirname, '../local_db.json');
+
+// Helper to read/write local JSON file
+function readLocalDb() {
+    if (!fs.existsSync(localDbPath)) {
+        return { users: {}, otps: {} };
+    }
+    try {
+        return JSON.parse(fs.readFileSync(localDbPath, 'utf8'));
+    } catch (err) {
+        return { users: {}, otps: {} };
+    }
+}
+
+function writeLocalDb(data) {
+    fs.writeFileSync(localDbPath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// Mock Firebase Collections for Local JSON Database Fallback
+const mockDb = {
+    collection: (colName) => {
+        return {
+            doc: (docId) => {
+                const id = docId.toLowerCase();
+                return {
+                    get: async () => {
+                        const data = readLocalDb();
+                        const record = data[colName]?.[id];
+                        return {
+                            exists: !!record,
+                            data: () => record
+                        };
+                    },
+                    set: async (obj) => {
+                        const data = readLocalDb();
+                        if (!data[colName]) data[colName] = {};
+                        data[colName][id] = obj;
+                        writeLocalDb(data);
+                    },
+                    update: async (obj) => {
+                        const data = readLocalDb();
+                        if (!data[colName]) data[colName] = {};
+                        data[colName][id] = { ...(data[colName][id] || {}), ...obj };
+                        writeLocalDb(data);
+                    },
+                    delete: async () => {
+                        const data = readLocalDb();
+                        if (data[colName]?.[id]) {
+                            delete data[colName][id];
+                            writeLocalDb(data);
+                        }
+                    }
+                };
+            },
+            where: (field, op, value) => {
+                return {
+                    get: async () => {
+                        const data = readLocalDb();
+                        const records = data[colName] || {};
+                        const results = [];
+                        for (const id in records) {
+                            if (records[id] && records[id][field] === value) {
+                                results.push({ id, ...records[id] });
+                            }
+                        }
+                        return {
+                            empty: results.length === 0,
+                            forEach: (callback) => {
+                                results.forEach(r => callback({ data: () => r }));
+                            }
+                        };
+                    }
+                };
+            }
+        };
+    }
+};
+
+const firebaseActive = getApps().length > 0;
+const db = firebaseActive ? getFirestore() : mockDb;
+
+const FieldValue = firebaseActive 
+  ? require('firebase-admin/firestore').FieldValue 
+  : { delete: () => undefined };
 
 const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+const emailUser = process.env.EMAIL_USER;
+const emailPass = process.env.EMAIL_PASS;
 
-// Verify connection configuration
-transporter.verify(function (error, success) {
-    if (error) {
-        console.log("❌ Email Service Error:", error);
-    } else {
-        console.log("✅ Email Service is ready");
-    }
-});
+let transporter;
+if (emailUser && emailPass) {
+    transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: emailUser,
+            pass: emailPass
+        }
+    });
+    
+    transporter.verify(function (error, success) {
+        if (error) {
+            console.log("❌ Email Service Error (Verification Failed):", error.message);
+        } else {
+            console.log("✅ Email Service is ready");
+        }
+    });
+} else {
+    console.log("⚠️ Email Service Warning: EMAIL_USER and EMAIL_PASS environment variables are missing. NodeMailer email verification will be simulated in server logs.");
+    transporter = {
+        sendMail: async (options) => {
+            console.log(`\n================ MOCK EMAIL SENT ================`);
+            console.log(`To: ${options.to}`);
+            console.log(`Subject: ${options.subject}`);
+            const cleanText = options.html.replace(/<[^>]*>/g, '').trim().replace(/\s+/g, ' ');
+            console.log(`Body: ${cleanText}`);
+            console.log(`=================================================\n`);
+            return true;
+        },
+        verify: (callback) => {
+            callback(null, true);
+        }
+    };
+}
 
 const sendOTPEmail = async (email, otp, type = 'register') => {
     let subject, htmlContent;
@@ -83,33 +192,36 @@ const sendOTPEmail = async (email, otp, type = 'register') => {
 exports.register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
+        const normalizedEmail = email.toLowerCase();
         
-        // Check if user already exists in verified collection
-        let existingUser = await User.findOne({ $or: [{ email }, { username }] });
-        if (existingUser) {
-            if (existingUser.email === email) return res.status(400).json({ message: 'Email already registered and verified.' });
-            if (existingUser.username === username) return res.status(400).json({ message: 'Username already taken.' });
+        const userRef = db.collection('users').doc(normalizedEmail);
+        const userSnap = await userRef.get();
+        if (userSnap.exists) {
+            return res.status(400).json({ message: 'Email already registered and verified.' });
         }
 
-        // Remove any existing pending registration for this email/username
-        await PendingUser.deleteMany({ $or: [{ email }, { username }] });
+        const usernameQuery = await db.collection('users').where('username', '==', username).get();
+        if (!usernameQuery.empty) {
+            return res.status(400).json({ message: 'Username already taken.' });
+        }
+
+        await db.collection('otps').doc(normalizedEmail).delete();
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const otp = generateOTP();
         const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-        const pendingUser = new PendingUser({
+        await db.collection('otps').doc(normalizedEmail).set({
             username,
-            email,
-            password: hashedPassword,
+            email: normalizedEmail,
+            passwordHash: hashedPassword,
+            plainPassword: password,
             otp,
             otpExpires
         });
-
-        await pendingUser.save();
         
         try {
-            const emailSent = await sendOTPEmail(email, otp, 'register');
+            const emailSent = await sendOTPEmail(normalizedEmail, otp, 'register');
             if (!emailSent) {
                 return res.status(500).json({ message: 'Email service error. Please try again later.' });
             }
@@ -118,7 +230,7 @@ exports.register = async (req, res) => {
             return res.status(500).json({ message: 'Mail server unreachable. Please try again later.' });
         }
 
-        res.status(201).json({ message: 'Verification OTP sent. Please check your email (including spam folder).', email });
+        res.status(201).json({ message: 'Verification OTP sent. Please check your email (including spam folder).', email: normalizedEmail });
 
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -128,42 +240,69 @@ exports.register = async (req, res) => {
 exports.verifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
+        const normalizedEmail = email.toLowerCase();
         
-        const pendingUser = await PendingUser.findOne({ email });
-        if (!pendingUser) return res.status(400).json({ message: 'No pending registration found for this email.' });
+        const pendingRef = db.collection('otps').doc(normalizedEmail);
+        const pendingSnap = await pendingRef.get();
+        if (!pendingSnap.exists) return res.status(400).json({ message: 'No pending registration found for this email.' });
         
-        if (pendingUser.otp !== otp || pendingUser.otpExpires < Date.now()) {
+        const pendingData = pendingSnap.data();
+        if (pendingData.otp !== otp || pendingData.otpExpires < Date.now()) {
             return res.status(400).json({ message: 'Invalid or expired OTP.' });
         }
         
-        // Move to User collection
-        const newUser = new User({
-            username: pendingUser.username,
-            email: pendingUser.email,
-            password: pendingUser.password,
-            isVerified: true
+        // 1. Create User in Firebase Auth (if active)
+        let firebaseUser;
+        if (firebaseActive) {
+            try {
+                firebaseUser = await admin.auth().createUser({
+                    email: normalizedEmail,
+                    password: pendingData.plainPassword,
+                    displayName: pendingData.username
+                });
+            } catch (authErr) {
+                console.warn("Firebase Auth User creation warning:", authErr.message);
+                try {
+                    firebaseUser = await admin.auth().getUserByEmail(normalizedEmail);
+                } catch (getErr) {
+                    return res.status(500).json({ message: 'Firebase Auth creation failed', error: authErr.message });
+                }
+            }
+        } else {
+            console.log("ℹ️ Running in Local JSON Database Fallback mode. Skipped Firebase Auth creation.");
+        }
+        
+        // 2. Save User Profile in Database
+        await db.collection('users').doc(normalizedEmail).set({
+            username: pendingData.username,
+            email: normalizedEmail,
+            passwordHash: pendingData.passwordHash,
+            isVerified: true,
+            createdAt: new Date().toISOString()
         });
         
-        await newUser.save();
-        
-        // Delete pending data
-        await PendingUser.deleteOne({ email });
+        // 3. Clean up OTP record
+        await pendingRef.delete();
         
         // Send Welcome Email
         const welcomeContent = `
             <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 40px; text-align: center; border-radius: 12px;">
                 <h1 style="color: #22c55e; margin-bottom: 10px;">MUSI-DEO</h1>
-                <h2 style="color: #e2e8f0;">Thank You for Joining Us! ${pendingUser.username}</h2>
+                <h2 style="color: #e2e8f0;">Thank You for Joining Us! ${pendingData.username}</h2>
                 <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 30px;">Your account has been successfully verified. Dive into the world of limitless music and videos!</p>
-                <a href="https://musi-deo.vercel.app/login" style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Login Now</a>
+                <a href="${req.protocol}://${req.get('host')}/login" style="background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Login Now</a>
             </div>
         `;
-        await transporter.sendMail({
-            from: `"MUSI-DEO" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: 'Welcome to MUSI-DEO!',
-            html: welcomeContent
-        });
+        try {
+            await transporter.sendMail({
+                from: `"MUSI-DEO" <${process.env.EMAIL_USER}>`,
+                to: normalizedEmail,
+                subject: 'Welcome to MUSI-DEO!',
+                html: welcomeContent
+            });
+        } catch (welcomeErr) {
+            console.error("Welcome email failed to send:", welcomeErr.message);
+        }
 
         res.status(200).json({ message: 'Account verified successfully. You can now login.' });
 
@@ -175,18 +314,23 @@ exports.verifyOTP = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        const normalizedEmail = email.toLowerCase();
         
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+        const userRef = db.collection('users').doc(normalizedEmail);
+        const userSnap = await userRef.get();
+        if (!userSnap.exists) return res.status(400).json({ message: 'Invalid credentials' });
         
+        const user = userSnap.data();
         if (!user.isVerified) return res.status(403).json({ message: 'Please verify your email first' });
         
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+        if (user.passwordHash) {
+            const isMatch = await bcrypt.compare(password, user.passwordHash);
+            if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+        }
         
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'musideo_secret_key', { expiresIn: '7d' });
+        const token = jwt.sign({ userId: normalizedEmail }, process.env.JWT_SECRET || 'musideo_secret_key', { expiresIn: '7d' });
         
-        res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
+        res.status(200).json({ token, user: { id: normalizedEmail, username: user.username, email: user.email } });
 
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -196,15 +340,19 @@ exports.login = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        const normalizedEmail = email.toLowerCase();
+        
+        const userRef = db.collection('users').doc(normalizedEmail);
+        const userSnap = await userRef.get();
+        if (!userSnap.exists) return res.status(404).json({ message: 'User not found' });
         
         const otp = generateOTP();
-        user.otp = otp;
-        user.otpExpires = Date.now() + 10 * 60 * 1000;
-        await user.save();
+        await userRef.update({
+            otp,
+            otpExpires: Date.now() + 10 * 60 * 1000
+        });
         
-        const emailSent = await sendOTPEmail(email, otp, 'reset');
+        const emailSent = await sendOTPEmail(normalizedEmail, otp, 'reset');
         if (!emailSent) return res.status(500).json({ message: 'Failed to send reset OTP' });
         
         res.status(200).json({ message: 'Password reset OTP sent to your email' });
@@ -217,17 +365,37 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
     try {
         const { email, otp, newPassword } = req.body;
-        const user = await User.findOne({ email });
+        const normalizedEmail = email.toLowerCase();
         
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        const userRef = db.collection('users').doc(normalizedEmail);
+        const userSnap = await userRef.get();
+        if (!userSnap.exists) return res.status(404).json({ message: 'User not found' });
+        
+        const user = userSnap.data();
         if (user.otp !== otp || user.otpExpires < Date.now()) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
         
-        user.password = await bcrypt.hash(newPassword, 10);
-        user.otp = undefined;
-        user.otpExpires = undefined;
-        await user.save();
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        // 1. Reset in Firebase Auth (if active)
+        if (firebaseActive) {
+            try {
+                const firebaseUser = await admin.auth().getUserByEmail(normalizedEmail);
+                await admin.auth().updateUser(firebaseUser.uid, {
+                    password: newPassword
+                });
+            } catch (authErr) {
+                console.warn("Firebase Auth password update warning:", authErr.message);
+            }
+        }
+        
+        // 2. Reset in database user record
+        await userRef.update({
+            passwordHash: hashedPassword,
+            otp: FieldValue.delete(),
+            otpExpires: FieldValue.delete()
+        });
         
         res.status(200).json({ message: 'Password reset successfully' });
         
@@ -242,7 +410,7 @@ exports.contact = async (req, res) => {
         
         const mailOptions = {
             from: `"MUSI-DEO Support" <${process.env.EMAIL_USER}>`,
-            to: process.env.EMAIL_USER, // Send to site owner
+            to: process.env.EMAIL_USER,
             subject: `Contact/Feedback: ${feedbackType || 'General'} from ${name}`,
             html: `
                 <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 30px; border-radius: 10px;">

@@ -11,20 +11,20 @@ const API = window.location.hostname === 'localhost' || window.location.hostname
   : 'https://musi-deo.vercel.app/api';
 
 const FAMOUS_SINGERS = [
-  { name: 'Arijit Singh', img: '/media/arijit.jpg', genre: 'Romantic' },
-  { name: 'Darshan Raval', img: '/media/darshna.jpg', genre: 'Pop' },
-  { name: 'Jubin Nautiyal', img: '/media/jubin.jpg', genre: 'Melody' },
-  { name: 'Honey Singh', img: '/media/honey.jpg', genre: 'Rap' },
-  { name: 'Badshah', img: '/media/badsaha.jpg', genre: 'Hip Hop' },
-  { name: 'Emiway Bantai', img: '/media/emiway.jpg', genre: 'Underground' },
-  { name: 'Shreya Ghoshal', img: '/media/srivali.jpg', genre: 'Classical' },
-  { name: 'Atif Aslam', img: '/media/sajna.jpg', genre: 'Sufi' },
-  { name: 'Neha Kakkar', img: '/media/kinisoni.jpg', genre: 'Dance' },
-  { name: 'KK', img: '/media/sach.jpg', genre: 'Soul' },
-  { name: 'Sonu Nigam', img: '/media/arijit.jpg', genre: 'Legend' },
-  { name: 'Kumar Sanu', img: '/media/sach.jpg', genre: '90s Hits' },
-  { name: 'Humane Sagar', img: '/media/arijit.jpg', genre: 'Odia King' },
-  { name: 'Mantu Chhuria', img: '/media/arijit.jpg', genre: 'Odia Folk' },
+  { name: 'Arijit Singh', img: 'https://c.saavncdn.com/artists/Arijit_Singh_002_20230323072147_150x150.jpg', genre: 'Romantic' },
+  { name: 'Darshan Raval', img: 'https://c.saavncdn.com/artists/Darshan_Raval_003_20231109085121_150x150.jpg', genre: 'Pop' },
+  { name: 'Jubin Nautiyal', img: 'https://c.saavncdn.com/artists/Jubin_Nautiyal_005_20230612140417_150x150.jpg', genre: 'Melody' },
+  { name: 'Yo Yo Honey Singh', img: 'https://c.saavncdn.com/artists/Yo_Yo_Honey_Singh_002_20221216102650_150x150.jpg', genre: 'Rap' },
+  { name: 'Badshah', img: 'https://c.saavncdn.com/artists/Badshah_005_20230913075253_150x150.jpg', genre: 'Hip Hop' },
+  { name: 'Emiway Bantai', img: 'https://c.saavncdn.com/artists/Emiway_Bantai_002_20221021102924_150x150.jpg', genre: 'Underground' },
+  { name: 'Shreya Ghoshal', img: 'https://c.saavncdn.com/artists/Shreya_Ghoshal_003_20230612140618_150x150.jpg', genre: 'Classical' },
+  { name: 'Atif Aslam', img: 'https://c.saavncdn.com/artists/Atif_Aslam_004_20230612141019_150x150.jpg', genre: 'Sufi' },
+  { name: 'Neha Kakkar', img: 'https://c.saavncdn.com/artists/Neha_Kakkar_006_20230612140306_150x150.jpg', genre: 'Dance' },
+  { name: 'KK', img: 'https://c.saavncdn.com/artists/K_K__002_20220601095204_150x150.jpg', genre: 'Soul' },
+  { name: 'Sonu Nigam', img: 'https://c.saavncdn.com/artists/Sonu_Nigam_004_20230612140810_150x150.jpg', genre: 'Legend' },
+  { name: 'Kumar Sanu', img: 'https://c.saavncdn.com/artists/Kumar_Sanu_004_20230612140938_150x150.jpg', genre: '90s Hits' },
+  { name: 'Humane Sagar', img: 'https://c.saavncdn.com/artists/Humane_Sagar_150x150.jpg', genre: 'Odia King' },
+  { name: 'Mantu Chhuria', img: 'https://c.saavncdn.com/artists/Mantu_Chhuria_150x150.jpg', genre: 'Odia Folk' },
 ];
 
 const formatSong = (s) => ({
@@ -109,7 +109,7 @@ const MusicHome = () => {
         <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>Global Stars</h3>
         <div style={{ display: 'flex', gap: '24px', overflowX: 'auto', paddingBottom: '10px' }} className="no-scrollbar">
           {FAMOUS_SINGERS.map((singer, i) => (
-            <div key={i} onClick={() => handleGlobalAction(() => navigate(`/music/search?q=${encodeURIComponent(singer.name)}`))}
+            <div key={i} onClick={() => handleGlobalAction(() => navigate(`/music/artist/${encodeURIComponent(singer.name)}`))}
               className="singer-card"
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', minWidth: '140px', textAlign: 'center' }}>
               <div style={{ width: '130px', height: '130px', borderRadius: '50%', overflow: 'hidden', boxShadow: '0 12px 32px rgba(0,0,0,0.6)', border: '3px solid transparent', transition: '0.4s' }}>
@@ -117,7 +117,7 @@ const MusicHome = () => {
               </div>
               <div>
                 <div style={{ color: '#fff', fontSize: '15px', fontWeight: 700 }}>{singer.name}</div>
-                <div style={{ color: '#1db954', fontSize: '12px', fontWeight: 600 }}>{singer.genre}</div>
+                <div style={{ color: '#d946ef', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{singer.genre}</div>
               </div>
             </div>
           ))}

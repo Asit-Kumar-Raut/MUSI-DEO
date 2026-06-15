@@ -1,5 +1,41 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
+
+const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
+let isFirebaseReady = false;
+
+if (fs.existsSync(serviceAccountPath)) {
+  try {
+    const serviceAccount = require(serviceAccountPath);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    isFirebaseReady = true;
+    console.log("✅ Firebase Admin initialized with serviceAccountKey.json");
+  } catch (err) {
+    console.error("❌ Firebase Admin initialization error:", err.message);
+  }
+} else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    isFirebaseReady = true;
+    console.log("✅ Firebase Admin initialized with FIREBASE_SERVICE_ACCOUNT environment variable");
+  } catch (err) {
+    console.error("❌ Firebase Admin env initialization error:", err.message);
+  }
+} else {
+  console.log("⚠️ Firebase Admin Warning: serviceAccountKey.json is missing and no FIREBASE_SERVICE_ACCOUNT env variable is set.");
+  console.log("👉 Database and Auth operations will show configuration errors until the file or variable is present.");
+}
+
+const { getFirestore } = require('firebase-admin/firestore');
+const db = isFirebaseReady ? getFirestore() : null;
+
 const cors = require('cors');
 require('dotenv').config();
 const CryptoJS = require('crypto-js');
@@ -218,6 +254,59 @@ app.get('/api/music/search', async (req, res) => {
   res.json(data);
 });
 
+// GET SONG DETAILS BY ID (JioSaavn or iTunes)
+app.get('/api/music/song/:id', async (req, res) => {
+  const songId = req.params.id;
+  console.log(`HIT: /api/music/song/${songId}`);
+  try {
+    if (songId.startsWith('saavn-')) {
+      const cleanId = songId.replace('saavn-', '');
+      const url = `https://www.jiosaavn.com/api.php?__call=song.getDetails&pids=${cleanId}&_format=json&_marker=0&api_version=4&ctx=web64s`;
+      const response = await fetch(url, { headers: JIOSAAVN_HEADERS });
+      const data = await response.json();
+      const songData = data[cleanId];
+      if (songData) {
+        const mapped = mapOfficialSaavnSong(songData);
+        if (mapped) {
+          return res.json({ status: 'SUCCESS', data: mapped });
+        }
+      }
+    } else if (songId.startsWith('itunes-')) {
+      const cleanId = songId.replace('itunes-', '');
+      const response = await fetch(`https://itunes.apple.com/lookup?id=${cleanId}`);
+      const data = await response.json();
+      if (data.results && data.results[0]) {
+        const track = data.results[0];
+        const highResImage = track.artworkUrl100 ? track.artworkUrl100.replace('100x100bb', '500x500bb') : '/media/sujal.jpg';
+        const durationSec = track.trackTimeMillis ? Math.floor(track.trackTimeMillis / 1000) : 180;
+        const mapped = {
+          id: track.trackId.toString(),
+          name: track.trackName,
+          primaryArtists: track.artistName,
+          image: [
+            { link: track.artworkUrl30 || highResImage },
+            { link: track.artworkUrl60 || highResImage },
+            { link: highResImage }
+          ],
+          downloadUrl: [
+            { link: track.previewUrl || '' },
+            { link: track.previewUrl || '' },
+            { link: track.previewUrl || '' },
+            { link: track.previewUrl || '' },
+            { link: track.previewUrl || '' }
+          ],
+          duration: durationSec
+        };
+        return res.json({ status: 'SUCCESS', data: mapped });
+      }
+    }
+    res.status(404).json({ status: 'ERROR', message: 'Song not found' });
+  } catch (err) {
+    console.error("[MUSIC] Get song details failed:", err.message);
+    res.status(500).json({ status: 'ERROR', message: err.message });
+  }
+});
+
 // LYRICS ENDPOINT
 app.get('/api/music/lyrics', async (req, res) => {
   console.log("HIT: /api/music/lyrics");
@@ -279,33 +368,58 @@ app.get('/api/music/download', async (req, res) => {
 app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
-  let dbStatus = "Disconnected";
-  const state = mongoose.connection.readyState;
-  if (state === 1) dbStatus = "Connected";
-  else if (state === 2) dbStatus = "Connecting...";
-  else if (state === 3) dbStatus = "Disconnecting...";
-
-  res.json({ 
-    status: "ok", 
-    port: PORT, 
-    database: dbStatus,
-    dbStateCode: state,
-    message: "MUSI-DEO API v3",
-    note: "MongoDB connects asynchronously. If status is 'Connecting...', please refresh in a few seconds."
-  });
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Server Status - MUSI-DEO</title>
+      <style>
+        body {
+          background-color: #ffffff;
+          color: #333333;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+          text-align: center;
+        }
+        h1 {
+          font-size: 2.5rem;
+          color: #111111;
+          margin-bottom: 10px;
+          font-weight: 800;
+        }
+        p {
+          font-size: 1.2rem;
+          color: #666666;
+          margin-top: 5px;
+        }
+        .status-badge {
+          background-color: #22c55e;
+          color: white;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          font-weight: bold;
+          text-transform: uppercase;
+          margin-top: 15px;
+          display: inline-block;
+          letter-spacing: 0.05em;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Server is running</h1>
+      <p>Database: Connected (Firebase Firestore)</p>
+      <span class="status-badge">ONLINE</span>
+    </body>
+    </html>
+  `);
 });
-
-// MongoDB Connection
-const uri = process.env.MONGODB_URI || "mongodb+srv://asitraut2006_db_user:0CpGUoNn0hMnd8d3@cluster0.ehruu5p.mongodb.net/musideo?retryWrites=true&w=majority&appName=Cluster0";
-
-// Mongoose Connection Event Listeners for real-time console feedback
-mongoose.connection.on('connected', () => console.log("✅ Mongoose status: Connected to MongoDB"));
-mongoose.connection.on('error', (err) => console.error("❌ Mongoose status: Connection error:", err.message));
-mongoose.connection.on('disconnected', () => console.log("⚠️ Mongoose status: Disconnected from MongoDB"));
-
-mongoose.connect(uri)
-  .then(() => console.log("✅ Database Connected on 5001"))
-  .catch(err => console.error("❌ Database Error during initial connect:", err.message));
 
 app.listen(PORT, () => {
   console.log(`\n----------------------------------`);

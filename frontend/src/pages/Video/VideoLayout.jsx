@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Search, Music, LogOut, Video as VideoIcon, Menu, X } from 'lucide-react';
+import { Home, Compass, Search, Music, LogOut, Video as VideoIcon, Menu, X, MessageSquare } from 'lucide-react';
 import VideoHome from './VideoHome';
 import VideoWatch from './VideoWatch';
 import VideoSearch from './VideoSearch';
+import Contact from '../Contact';
 import { useAuth } from '../../context/AuthContext';
 import { usePlayer } from '../../context/PlayerContext';
 
@@ -13,6 +14,7 @@ const SidebarContent = ({ onClose }) => {
   const items = [
     { path: '/video', label: 'Home', Icon: Home },
     { path: '/video/trending', label: 'Trending', Icon: Compass },
+    { path: '/video/contact', label: 'Contact & Feedback', Icon: MessageSquare },
   ];
 
   return (
@@ -116,6 +118,7 @@ const VideoLayout = () => {
             <Route path="/watch/:id" element={<VideoWatch />} />
             <Route path="/search" element={<VideoSearch />} />
             <Route path="/trending" element={<VideoHome />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </main>
       </div>

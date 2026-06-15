@@ -72,13 +72,13 @@ const MusicSearch = () => {
   };
 
   return (
-    <div style={{ paddingBottom: '120px' }}>
-      <div style={{ position: 'sticky', top: 0, background: '#121212', zIndex: 20, paddingBottom: '16px', paddingTop: '8px' }}>
+    <div style={{ paddingBottom: '120px' }} className="animate-slide-right">
+      <div style={{ position: 'sticky', top: 0, background: '#030108', zIndex: 20, paddingBottom: '16px', paddingTop: '8px' }}>
         <div style={{ position: 'relative', maxWidth: '500px' }}>
-          <SearchIcon size={20} color="#000" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+          <SearchIcon size={20} color="#6b21a8" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
           <input type="text" placeholder="Search for songs, artists, or podcasts" value={query}
             onChange={e => { setQuery(e.target.value); doSearch(e.target.value); }}
-            style={{ width: '100%', padding: '14px 20px 14px 48px', background: '#fff', color: '#000', fontWeight: 600, fontSize: '15px', borderRadius: '9999px', border: 'none', outline: 'none' }} />
+            style={{ width: '100%', padding: '14px 20px 14px 48px', background: '#150f24', color: '#fff', fontWeight: 600, fontSize: '15px', borderRadius: '9999px', border: '1px solid rgba(139,92,246,0.3)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.4)' }} />
         </div>
       </div>
 
@@ -89,7 +89,7 @@ const MusicSearch = () => {
               <RefreshCcw size={20} className="spin" /> Searching global library...
             </div>
           ) : error ? (
-            <div style={{ background: '#282828', padding: '24px', borderRadius: '12px', border: '1px solid #ef4444', marginTop: '20px', maxWidth: '600px' }}>
+            <div style={{ background: '#0e081c', padding: '24px', borderRadius: '12px', border: '1px solid #ef4444', marginTop: '20px', maxWidth: '600px' }}>
               <h3 style={{ color: '#ef4444' }}>Connection Error</h3>
               <p style={{ color: '#aaa' }}>Check if backend is on Port 5001.</p>
               <button onClick={() => doSearch(query)} style={{ marginTop: '10px' }}>Retry</button>
@@ -100,12 +100,14 @@ const MusicSearch = () => {
                 const active = currentSong?.id === song.id;
                 return (
                   <div key={song.id} onClick={() => handleGlobalAction(() => playSong(song, results))}
-                    style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', background: active ? 'rgba(29,185,84,0.15)' : 'transparent', transition: '0.15s' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', background: active ? 'rgba(139,92,246,0.15)' : 'transparent', border: active ? '1px solid rgba(139,92,246,0.3)' : '1px solid transparent', transition: 'all 0.2s' }}
+                    onMouseEnter={e => { if(!active) e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                    onMouseLeave={e => { if(!active) e.currentTarget.style.background = 'transparent'; }}>
                     <span style={{ width: '24px', color: '#a0a0a0', fontSize: '13px', textAlign: 'right' }}>{idx + 1}</span>
                     <img src={song.image} alt="" style={{ width: '44px', height: '44px', borderRadius: '4px', objectFit: 'cover' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: active ? '#1db954' : '#fff', fontWeight: 600, fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.title}</div>
-                      <div style={{ color: '#a0a0a0', fontSize: '12px' }}>{song.artist}</div>
+                      <div style={{ color: active ? '#d946ef' : '#fff', fontWeight: 600, fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song.title}</div>
+                      <div style={{ color: '#a78bfa', fontSize: '12px' }}>{song.artist}</div>
                     </div>
                     <button onClick={(e) => handleAdd(e, song)} style={{ background: 'none', border: 'none', color: '#b3b3b3', cursor: 'pointer', padding: '8px' }} title="Add to Liked Songs"><Plus size={18} /></button>
                     <div style={{ color: '#a0a0a0', fontSize: '12px' }}>{Math.floor(song.duration/60)}:{(song.duration%60).toString().padStart(2,'0')}</div>
@@ -121,7 +123,9 @@ const MusicSearch = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
             {categories.map((cat, i) => (
               <div key={cat} onClick={() => handleGlobalAction(() => { setQuery(cat); doSearch(cat); })}
-                style={{ background: categoryColors[i % categoryColors.length], borderRadius: '8px', padding: '16px', height: '100px', cursor: 'pointer', transition: '0.3s', overflow: 'hidden', position: 'relative' }}>
+                style={{ background: categoryColors[i % categoryColors.length], borderRadius: '12px', padding: '16px', height: '100px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', overflow: 'hidden', position: 'relative', boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px) scale(1.03)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
                 <h4 style={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem' }}>{cat}</h4>
               </div>
             ))}

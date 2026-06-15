@@ -1,8 +1,11 @@
 import React, { createContext, useState, useContext, useRef, useCallback, useEffect } from 'react';
+import { allSongs } from '../data/mediaData';
+import { useAuth } from './AuthContext';
 
 const PlayerContext = createContext();
 
 export const PlayerProvider = ({ children }) => {
+  const { user } = useAuth();
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -11,14 +14,77 @@ export const PlayerProvider = ({ children }) => {
   const [playlist, setPlaylist] = useState([]);
   const [isLooping, setIsLooping] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem('musideo_volume');
+    return saved !== null ? parseFloat(saved) : 0.8;
+  });
   const audioRef = useRef(new Audio());
 
-  // Load last played song from localStorage on mount
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+      localStorage.setItem('musideo_volume', volume.toString());
+    }
+  }, [volume]);
+
+  // Watch for logout and auto-stop music
+  useEffect(() => {
+    if (!user) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      setCurrentSong(null);
+      setPlaylist([]);
+      localStorage.removeItem('musideo_last_song');
+      localStorage.removeItem('musideo_last_playlist');
+    }
+  }, [user]);
+
+  // Load last played song from localStorage on mount and parse shared links
   useEffect(() => {
     const savedSong = localStorage.getItem('musideo_last_song');
     const savedPlaylist = localStorage.getItem('musideo_last_playlist');
-    if (savedSong) setCurrentSong(JSON.parse(savedSong));
+    let loadedSong = null;
+    
+    if (savedSong) {
+      loadedSong = JSON.parse(savedSong);
+      setCurrentSong(loadedSong);
+      audioRef.current.src = loadedSong.audio;
+    }
     if (savedPlaylist) setPlaylist(JSON.parse(savedPlaylist));
+
+    // Handle shared song link
+    const params = new URLSearchParams(window.location.search);
+    const playId = params.get('play');
+    if (playId) {
+      if (loadedSong && loadedSong.id === playId) return;
+
+      const localSong = allSongs.find(s => s.id === playId);
+      if (localSong) {
+        playSong(localSong);
+      } else {
+        const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+          ? 'http://localhost:5001/api' 
+          : 'https://musi-deo.vercel.app/api';
+        
+        fetch(`${API}/music/song/${playId}`)
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.status === 'SUCCESS' && resData.data) {
+              const s = resData.data;
+              const song = {
+                id: s.id.toString().startsWith('saavn-') || s.id.toString().startsWith('itunes-') ? s.id.toString() : `saavn-${s.id}`,
+                title: s.name,
+                artist: s.primaryArtists || 'Various Artists',
+                image: s.image?.[2]?.link || s.image?.[1]?.link || '/media/sujal.jpg',
+                audio: s.downloadUrl?.[4]?.link || s.downloadUrl?.[3]?.link || s.downloadUrl?.[2]?.link || '',
+                duration: parseInt(s.duration) || 0,
+              };
+              playSong(song);
+            }
+          })
+          .catch(err => console.error("Error loading shared song:", err));
+      }
+    }
   }, []);
   
   const stateRef = useRef({ playlist: [], currentSong: null, isLooping: false });
@@ -144,7 +210,7 @@ export const PlayerProvider = ({ children }) => {
   };
 
   return (
-    <PlayerContext.Provider value={{ currentSong, isPlaying, progress, currentTime, duration, playlist, isLooping, isShuffled, playSong, addToQueue, stopMusic, togglePlay, toggleLoop, toggleShuffle, playNext, playPrev, seekTo, formatTime, setPlaylist }}>
+    <PlayerContext.Provider value={{ currentSong, isPlaying, progress, currentTime, duration, playlist, isLooping, isShuffled, playSong, addToQueue, stopMusic, togglePlay, toggleLoop, toggleShuffle, playNext, playPrev, seekTo, formatTime, setPlaylist, volume, setVolume }}>
       {children}
     </PlayerContext.Provider>
   );

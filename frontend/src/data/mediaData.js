@@ -20,13 +20,13 @@ export const allSongs = [
 ];
 
 export const allArtists = [
-  { id: 1, name: "Darshan Raval", image: "/media/darshna.jpg" },
-  { id: 2, name: "Jubin Nautiyal", image: "/media/jubin.jpg" },
-  { id: 3, name: "Arijit Singh", image: "/media/arijit.jpg" },
-  { id: 4, name: "Yo Yo Honey Singh", image: "/media/honey.jpg" },
-  { id: 5, name: "Emiway Bantai", image: "/media/emiway.jpg" },
-  { id: 6, name: "Paradox", image: "/media/paradox.jpg" },
-  { id: 7, name: "Sujal", image: "/media/sujal.jpg" },
+  { id: 1, name: "Darshan Raval", image: "https://c.saavncdn.com/artists/Darshan_Raval_003_20231109085121_150x150.jpg" },
+  { id: 2, name: "Jubin Nautiyal", image: "https://c.saavncdn.com/artists/Jubin_Nautiyal_005_20230612140417_150x150.jpg" },
+  { id: 3, name: "Arijit Singh", image: "https://c.saavncdn.com/artists/Arijit_Singh_002_20230323072147_150x150.jpg" },
+  { id: 4, name: "Yo Yo Honey Singh", image: "https://c.saavncdn.com/artists/Yo_Yo_Honey_Singh_002_20221216102650_150x150.jpg" },
+  { id: 5, name: "Emiway Bantai", image: "https://c.saavncdn.com/artists/Emiway_Bantai_002_20221021102924_150x150.jpg" },
+  { id: 6, name: "Paradox", image: "https://c.saavncdn.com/artists/Paradox_150x150.jpg" },
+  { id: 7, name: "Sujal", image: "https://c.saavncdn.com/artists/Sonu_Nigam_004_20230612140810_150x150.jpg" },
 ];
 
 export const allVideos = [

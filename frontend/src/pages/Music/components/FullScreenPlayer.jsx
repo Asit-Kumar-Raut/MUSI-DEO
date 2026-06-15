@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, Download, Share2, Music as MusicIcon, RefreshCw, FileText } from 'lucide-react';
+import { ChevronDown, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, Download, Share2, Music as MusicIcon, RefreshCw, FileText, Heart } from 'lucide-react';
 import { localLyrics, getFallbackLyrics } from '../../../data/lyricsData';
 import { usePlayer } from '../../../context/PlayerContext';
+import { usePlaylists } from '../../../context/PlaylistContext';
 import axios from 'axios';
 
 const FullScreenPlayer = ({ isOpen, onClose, API }) => {
@@ -21,6 +22,18 @@ const FullScreenPlayer = ({ isOpen, onClose, API }) => {
     toggleLoop, 
     toggleShuffle 
   } = usePlayer();
+  const { playlists, addToPlaylist, removeFromPlaylist } = usePlaylists();
+
+  const isLiked = playlists.find(p => p.id === 'fav')?.songs.some(s => s.id === currentSong?.id);
+  
+  const handleLikeToggle = () => {
+    if (!currentSong) return;
+    if (isLiked) {
+      removeFromPlaylist('fav', currentSong.id);
+    } else {
+      addToPlaylist('fav', currentSong);
+    }
+  };
 
   const [showLyrics, setShowLyrics] = useState(false);
   const [lyrics, setLyrics] = useState('');
@@ -451,8 +464,30 @@ const FullScreenPlayer = ({ isOpen, onClose, API }) => {
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                gap: '40px',
+                gap: '20px',
               }}>
+                <button 
+                  onClick={handleLikeToggle} 
+                  style={{
+                    background: isLiked ? 'rgba(217, 70, 239, 0.15)' : 'rgba(255,255,255,0.06)',
+                    border: isLiked ? '1px solid #d946ef' : 'none',
+                    color: isLiked ? '#d946ef' : '#fff',
+                    padding: '12px 20px',
+                    borderRadius: '30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: '0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = isLiked ? 'rgba(217, 70, 239, 0.25)' : 'rgba(255,255,255,0.12)'}
+                  onMouseLeave={e => e.currentTarget.style.background = isLiked ? 'rgba(217, 70, 239, 0.15)' : 'rgba(255,255,255,0.06)'}
+                >
+                  <Heart size={18} fill={isLiked ? '#d946ef' : 'none'} color={isLiked ? '#d946ef' : '#fff'} /> {isLiked ? "Liked" : "Like"}
+                </button>
+
                 <button 
                   onClick={handleDownload} 
                   style={{
