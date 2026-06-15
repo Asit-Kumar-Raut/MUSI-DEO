@@ -9,8 +9,13 @@ const path = require('path');
 
 const localDbPath = path.join(__dirname, '../local_db.json');
 
-// Helper to read/write local JSON file
+let memoryDb = { users: {}, otps: {} };
+
+// Helper to read/write local JSON file (uses in-memory database on Vercel to avoid EROFS)
 function readLocalDb() {
+    if (process.env.VERCEL) {
+        return memoryDb;
+    }
     if (!fs.existsSync(localDbPath)) {
         return { users: {}, otps: {} };
     }
@@ -22,7 +27,15 @@ function readLocalDb() {
 }
 
 function writeLocalDb(data) {
-    fs.writeFileSync(localDbPath, JSON.stringify(data, null, 2), 'utf8');
+    if (process.env.VERCEL) {
+        memoryDb = data;
+        return;
+    }
+    try {
+        fs.writeFileSync(localDbPath, JSON.stringify(data, null, 2), 'utf8');
+    } catch (err) {
+        console.error("Local DB write failed:", err.message);
+    }
 }
 
 // Mock Firebase Collections for Local JSON Database Fallback

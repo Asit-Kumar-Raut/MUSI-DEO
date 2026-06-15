@@ -1,18 +1,24 @@
 const express = require('express');
-const admin = require('firebase-admin');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
 const fs = require('fs');
 const path = require('path');
 
 const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
 let isFirebaseReady = false;
 
+const initFirebase = (serviceAccount) => {
+  if (getApps().length === 0) {
+    initializeApp({
+      credential: cert(serviceAccount)
+    });
+  }
+  isFirebaseReady = true;
+};
+
 if (fs.existsSync(serviceAccountPath)) {
   try {
     const serviceAccount = require(serviceAccountPath);
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
-    isFirebaseReady = true;
+    initFirebase(serviceAccount);
     console.log("✅ Firebase Admin initialized with serviceAccountKey.json");
   } catch (err) {
     console.error("❌ Firebase Admin initialization error:", err.message);
@@ -20,10 +26,7 @@ if (fs.existsSync(serviceAccountPath)) {
 } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
-    isFirebaseReady = true;
+    initFirebase(serviceAccount);
     console.log("✅ Firebase Admin initialized with FIREBASE_SERVICE_ACCOUNT environment variable");
   } catch (err) {
     console.error("❌ Firebase Admin env initialization error:", err.message);
